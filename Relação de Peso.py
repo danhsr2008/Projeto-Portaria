@@ -99,7 +99,7 @@ class Application(funcoes):
     def frames_da_tela(self):
         self.label_1 = Label(self.root, bd=4, bg='#CDFFD4', highlightbackground='#015B00', highlightthickness=3,
                              textvariable=var_especial, font=("Roboto", 32))
-        self.label_1.place(relx=0.02, rely=0.57, relwidth=0.96, relheight=0.4, )
+        self.label_1.place(relx=0.02, rely=0.57, relwidth=0.96, relheight=0.4)
 
     def bot_limpar(self):
         # botao limpar
