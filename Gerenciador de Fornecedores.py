@@ -41,19 +41,19 @@ class Principal:
         self.t_1 = Label(self.root, text= "Placa", font= ('Roboto', 10), background= '#d9dbdc') # placa
         self.t_1.place(relx= 0.068, rely= 0.069, relwidth= 0.1, relheight= 0.03)
 
-        self.t_1 = Label(self.root, text="Nome", font=('Roboto', 10), background='#d9dbdc')  # nome
-        self.t_1.place(relx=0.263, rely=0.069, relwidth=0.1, relheight=0.03)
+        self.t_2 = Label(self.root, text="Nome", font=('Roboto', 10), background='#d9dbdc')  # nome
+        self.t_2.place(relx=0.263, rely=0.069, relwidth=0.1, relheight=0.03)
 
-        self.t_1 = Label(self.root, text="RG/CPF", font=('Roboto', 8), background='#d9dbdc')  # Rg cpf
-        self.t_1.place(relx=0.565, rely=0.07, relwidth=0.1, relheight=0.03)
+        self.t_3 = Label(self.root, text="RG/CPF", font=('Roboto', 8), background='#d9dbdc')  # Rg cpf
+        self.t_3.place(relx=0.565, rely=0.07, relwidth=0.1, relheight=0.03)
 
-        self.t_1 = Label(self.root, text="Nota", font=('Roboto', 10), background='#d9dbdc')  # nota
-        self.t_1.place(relx=0.068, rely=0.17, relwidth=0.1, relheight=0.03)
+        self.t_4 = Label(self.root, text="Nota", font=('Roboto', 10), background='#d9dbdc')  # nota
+        self.t_4.place(relx=0.068, rely=0.17, relwidth=0.1, relheight=0.03)
 
-        self.t_1 = Label(self.root, text="Fornecedor", font=('Roboto', 10), background='#d9dbdc')  # fornecedor
-        self.t_1.place(relx=0.275, rely=0.17, relwidth=0.1, relheight=0.03)
+        self.t_5 = Label(self.root, text="Fornecedor", font=('Roboto', 10), background='#d9dbdc')  # fornecedor
+        self.t_5.place(relx=0.275, rely=0.17, relwidth=0.1, relheight=0.03)
 
-        self.t_1 = Label(self.root, text="Mercadoria", font=('Roboto', 10), background='#d9dbdc')  # mercadoria
-        self.t_1.place(relx=0.574, rely=0.17, relwidth=0.1, relheight=0.03)
+        self.t_6 = Label(self.root, text="Mercadoria", font=('Roboto', 10), background='#d9dbdc')  # mercadoria
+        self.t_6.place(relx=0.574, rely=0.17, relwidth=0.1, relheight=0.03)
 
 Principal()
