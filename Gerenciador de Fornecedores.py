@@ -1,54 +1,87 @@
 from tkinter import *
 import tkinter as tk
-from tkinter import ttk, Scrollbar, font
+from tkinter import ttk, Scrollbar, font, messagebox
 from tkinter.font import nametofont
+import datetime
 
 root = tk.Tk()
 
-dados = [[]]
+
+# hora = StringVar()
 
 
 class funcoes:
-    # def __init__(self):
+    def __init__(self):
+        self.data = None
+
     def cap_dados(self):
         self.tree.insert(
-            "", END, values=(self.e_1.get(),
-                             self.e_2.get(), self.e_3.get(),
-                             self.e_5.get(), self.e_6.get(), self.e_4.get()))
-        ttk.Style().configure("Treeview", font=('Roboto', 10), rowheight=30, background='#d9dbdc', foreground='#000000',
-                              fieldbackground='#d9dbdc', bordercolor='#d9dbdc', highlightthickness=0, borderwidth=0,
-                              relief='flat')
-        self.e_1.delete(0, END)
-        self.e_2.delete(0, END)
-        self.e_3.delete(0, END)
-        self.e_4.delete(0, END)
-        self.e_5.delete(0, END)
-        self.e_6.delete(0, END)
-        self.e_1.focus()
+            "", END, values=(self.data.get(), self.e_placa.get(),
+                             self.e_nome.get(), self.e_rg.get(),
+                             self.e_forn.get(), self.e_merc.get(),
+                             self.e_nota.get(), self.hora.get()))
+        ttk.Style().configure("Treeview", font=('Roboto', 12), rowheight=30, background='#d9dbdc', foreground='#000000')
 
-        if self.e_1 == '':
-            return self.b_1.config(state='disabled')
-        else:
-            return self.b_1.config(state='normal')
+        self.e_placa.delete(0, END)
+        self.e_nome.delete(0, END)
+        self.e_rg.delete(0, END)
+        self.e_nota.delete(0, END)
+        self.e_forn.delete(0, END)
+        self.e_merc.delete(0, END)
+        self.e_placa.focus()
+
+        '''try:
+            while True:
+                if self.e_placa.get() == '':
+                    self.tree.delete(self.tree.get_children())
+                    messagebox.showerror('Erro', 'Preencha todos os campos!')
+                    break
+
+        except ValueError:
+            pass'''
+
+    def delete_(self):
+        try:
+            item_selection = self.tree.selection()[0]
+            self.tree.delete(item_selection)
+        except IndexError:
+            messagebox.showerror("Erro", "Selecione um item para deletar")
+
+    def data_(self):
+        while True:
+            self.data = datetime.datetime.now()
+            self.data = self.data.strftime("%d/%m")
+            self.data = StringVar(value=self.data)
+            self.root.after(1440000, self.data_)  # 1440000 = 24 horas
+            break
+
+    def hora_(self):
+        while True:
+            self.hora = datetime.datetime.now()
+            self.hora = self.hora.strftime("%H:%M")
+            self.hora = StringVar(value=self.hora)
+            self.root.after(1000, self.hora_)  # 1000 = 1 minuto
+            break
 
 
 class Principal(funcoes):
     scroll: Scrollbar
 
     def __init__(self):
+        super().__init__()
         self.t_2 = None
         self.t_3 = None
         self.t_4 = None
         self.t_5 = None
         self.t_6 = None
-        self.e_6 = None
-        self.e_5 = None
-        self.e_4 = None
+        self.e_merc = None
+        self.e_forn = None
+        self.e_nota = None
         self.b_1 = None
         self.root = root
-        self.e_1 = None
-        self.e_2 = None
-        self.e_3 = None
+        self.e_placa = None
+        self.e_nome = None
+        self.e_rg = None
         self.t_1 = None
         self.tree = None
         self.screen()
@@ -56,6 +89,8 @@ class Principal(funcoes):
         self.botoes()
         self.tagg()
         self.treeview()
+        self.data_()
+        self.hora_()
         root.mainloop()
 
     def screen(self):
@@ -64,28 +99,31 @@ class Principal(funcoes):
         self.root.geometry('1300x650')
 
     def entrys(self):
-        self.e_1 = Entry(self.root, width=25, font=('Roboto', 23))  # PLACA
-        self.e_1.place(relx=0.1, rely=0.1, relwidth=0.15, relheight=0.05)
+        self.e_placa = Entry(self.root, width=25, font=('Roboto', 23))  # PLACA
+        self.e_placa.place(relx=0.1, rely=0.1, relwidth=0.15, relheight=0.05)
 
-        self.e_2 = Entry(self.root, width=25, font=('Roboto', 23))  # NOME
-        self.e_2.place(relx=0.29, rely=0.1, relwidth=0.26, relheight=0.05)
+        self.e_nome = Entry(self.root, width=25, font=('Roboto', 23))  # NOME
+        self.e_nome.place(relx=0.29, rely=0.1, relwidth=0.26, relheight=0.05)
 
-        self.e_3 = Entry(self.root, width=25, font=('Roboto', 23))  # RG CPF
-        self.e_3.place(relx=0.59, rely=0.1, relwidth=0.24, relheight=0.05)
+        self.e_rg = Entry(self.root, width=25, font=('Roboto', 23))  # RG CPF
+        self.e_rg.place(relx=0.59, rely=0.1, relwidth=0.22, relheight=0.05)
         #######################################################################################################
-        self.e_4 = Entry(self.root, width=25, font=('Roboto', 23))  # NOTA
-        self.e_4.place(relx=0.1, rely=0.2, relwidth=0.15, relheight=0.05)
+        self.e_nota = Entry(self.root, width=25, font=('Roboto', 23))  # NOTA
+        self.e_nota.place(relx=0.1, rely=0.2, relwidth=0.15, relheight=0.05)
 
-        self.e_5 = Entry(self.root, width=25, font=('Roboto', 23))  # FORNECEDOR
-        self.e_5.place(relx=0.29, rely=0.2, relwidth=0.26, relheight=0.05)
+        self.e_forn = Entry(self.root, width=25, font=('Roboto', 23))  # FORNECEDOR
+        self.e_forn.place(relx=0.29, rely=0.2, relwidth=0.26, relheight=0.05)
 
-        self.e_6 = Entry(self.root, width=25, font=('Roboto', 23))  # MERCADORIA
-        self.e_6.place(relx=0.59, rely=0.2, relwidth=0.24, relheight=0.05)
+        self.e_merc = Entry(self.root, width=25, font=('Roboto', 23))  # MERCADORIA
+        self.e_merc.place(relx=0.59, rely=0.2, relwidth=0.22, relheight=0.05)
 
     def botoes(self):
         self.b_1 = Button(self.root, text="Registrar", font=('Roboto', 10), background='#d9dbdc',
                           command=self.cap_dados)
-        self.b_1.place(relx=0.85, rely=0.15, relwidth=0.06, relheight=0.05)
+        self.b_1.place(relx=0.84, rely=0.1, relwidth=0.06, relheight=0.05)
+
+        self.b_2 = Button(self.root, text="Deletar", font=('Roboto', 10), background='#d9dbdc', command=self.delete_)
+        self.b_2.place(relx=0.84, rely=0.2, relwidth=0.06, relheight=0.05)
 
     def tagg(self):
         self.t_1 = Label(self.root, text="Placa", font=('Roboto', 10), background='#d9dbdc')  # placa
@@ -122,26 +160,31 @@ class Principal(funcoes):
         self.t_6.place(relx=0.574, rely=0.17, relwidth=0.1, relheight=0.03)
 
     def treeview(self):
-        self.tree = ttk.Treeview(self.root, columns=('Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota'),
+        self.tree = ttk.Treeview(self.root, columns=(
+        'Data', 'Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora'),
                                  show='headings')
         '''style = ttk.Style()
         style.configure("Treeview.Heading", font=('Roboto', 11))'''
         nametofont("TkHeadingFont").configure(size=10, weight='bold')
         self.tree.heading("#0", text="")
-        self.tree.heading("#1", text="Placa")
-        self.tree.heading("#2", text="Nome")
-        self.tree.heading("#3", text="RG/CPF")
-        self.tree.heading("#4", text="Fornecedor")
-        self.tree.heading("#5", text="Mercadoria")
-        self.tree.heading("#6", text="Nota")
+        self.tree.heading("#1", text="Data")
+        self.tree.heading("#2", text="Placa")
+        self.tree.heading("#3", text="Nome")
+        self.tree.heading("#4", text="RG/CPF")
+        self.tree.heading("#5", text="Fornecedor")
+        self.tree.heading("#6", text="Mercadoria")
+        self.tree.heading("#7", text="Nota")
+        self.tree.heading("#8", text="Hora")
 
-        self.tree.column("#0", width=1)
-        self.tree.column("#1", width=100)
-        self.tree.column("#2", width=200)
-        self.tree.column("#3", width=100)
-        self.tree.column("#4", width=200)
-        self.tree.column("#5", width=200)
-        self.tree.column("#6", width=100)
+        self.tree.column("#0", width=0)
+        self.tree.column("#1", width=20)  # data
+        self.tree.column("#2", width=100)  # placa
+        self.tree.column("#3", width=100)  # nome
+        self.tree.column("#4", width=100)  # rg_cpf
+        self.tree.column("#5", width=150)  # fornecedor
+        self.tree.column("#6", width=100)  # mercadoria
+        self.tree.column("#7", width=100)  # nota
+        self.tree.column("#8", width=40)  # hora
 
         self.tree.place(relx=0.1, rely=0.3, relwidth=0.8, relheight=0.6)
 
