@@ -1,24 +1,24 @@
 from tkinter import *
 import tkinter as tk
-from tkinter import ttk, Scrollbar
+from tkinter import ttk, Scrollbar, font
+from tkinter.font import nametofont
 
 root = tk.Tk()
 
-dados = ['']
+dados = [[]]
 
 
 class funcoes:
     # def __init__(self):
     def cap_dados(self):
-        dados.append(self.e_1.get())
-        dados.append(self.e_2.get())
-        dados.append(self.e_3.get())
-        dados.append(self.e_4.get())
-        dados.append(self.e_5.get())
-        dados.append(self.e_6.get())
+        self.tree.insert(
+            "", END, values=(self.e_1.get(),
+                               self.e_2.get(), self.e_3.get(),
+                               self.e_5.get(), self.e_6.get(), self.e_4.get()))
+        ttk.Style().configure("Treeview", font=('Roboto', 10), rowheight=30, background='#d9dbdc', foreground='#000000', fieldbackground='#d9dbdc', bordercolor='#d9dbdc', highlightthickness=0, borderwidth=0, relief='flat')
 
 
-# noinspection PyArgumentList
+
 class Principal(funcoes):
     scroll: Scrollbar
 
@@ -44,6 +44,7 @@ class Principal(funcoes):
         self.root.title("Gerenciador de Fornecedores v_1.0")
         self.root.configure(background='#d9dbdc')
         self.root.geometry('1300x650')
+
 
     def entrys(self):
         self.e_1 = Entry(self.root, width=25, font=('Roboto', 23))  # PLACA
@@ -89,9 +90,11 @@ class Principal(funcoes):
         self.t_1.place(relx=0.57, rely=0.17, relwidth=0.1, relheight=0.03)
 
     def treeview(self):
-        self.tree = ttk.Treeview(self.root, height=10,
-                                 column=('Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota'),
+        self.tree = ttk.Treeview(self.root, columns=('Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota'),
                                  show='headings')
+        '''style = ttk.Style()
+        style.configure("Treeview.Heading", font=('Roboto', 11))'''
+        nametofont("TkHeadingFont").configure(size=10, weight='bold')
         self.tree.heading("#0", text="")
         self.tree.heading("#1", text="Placa")
         self.tree.heading("#2", text="Nome")
@@ -111,11 +114,9 @@ class Principal(funcoes):
         self.tree.place(relx=0.1, rely=0.3, relwidth=0.8, relheight=0.6)
 
         self.scroll = Scrollbar(self.tree, orient=VERTICAL)
-        self.tree.configure(yscroll=self.scroll.set)
+        self.tree.configure(yscrollcommand=self.scroll.set)
+        self.scroll.config(command=self.tree.yview)
         self.scroll.place(relx=0.979, rely=0.002, relwidth=0.02, relheight=0.995)
-
-        for i in dados:
-            self.tree.insert("", END, values= i)
 
 
 Principal()
