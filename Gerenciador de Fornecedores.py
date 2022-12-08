@@ -13,16 +13,34 @@ class funcoes:
     def cap_dados(self):
         self.tree.insert(
             "", END, values=(self.e_1.get(),
-                               self.e_2.get(), self.e_3.get(),
-                               self.e_5.get(), self.e_6.get(), self.e_4.get()))
-        ttk.Style().configure("Treeview", font=('Roboto', 10), rowheight=30, background='#d9dbdc', foreground='#000000', fieldbackground='#d9dbdc', bordercolor='#d9dbdc', highlightthickness=0, borderwidth=0, relief='flat')
+                             self.e_2.get(), self.e_3.get(),
+                             self.e_5.get(), self.e_6.get(), self.e_4.get()))
+        ttk.Style().configure("Treeview", font=('Roboto', 10), rowheight=30, background='#d9dbdc', foreground='#000000',
+                              fieldbackground='#d9dbdc', bordercolor='#d9dbdc', highlightthickness=0, borderwidth=0,
+                              relief='flat')
+        self.e_1.delete(0, END)
+        self.e_2.delete(0, END)
+        self.e_3.delete(0, END)
+        self.e_4.delete(0, END)
+        self.e_5.delete(0, END)
+        self.e_6.delete(0, END)
+        self.e_1.focus()
 
+        if self.e_1 == '':
+            return self.b_1.config(state='disabled')
+        else:
+            return self.b_1.config(state='normal')
 
 
 class Principal(funcoes):
     scroll: Scrollbar
 
     def __init__(self):
+        self.t_2 = None
+        self.t_3 = None
+        self.t_4 = None
+        self.t_5 = None
+        self.t_6 = None
         self.e_6 = None
         self.e_5 = None
         self.e_4 = None
@@ -44,7 +62,6 @@ class Principal(funcoes):
         self.root.title("Gerenciador de Fornecedores v_1.0")
         self.root.configure(background='#d9dbdc')
         self.root.geometry('1300x650')
-
 
     def entrys(self):
         self.e_1 = Entry(self.root, width=25, font=('Roboto', 23))  # PLACA
@@ -88,6 +105,21 @@ class Principal(funcoes):
 
         self.t_1 = Label(self.root, text="Mercadoria", font=('Roboto', 10), background='#d9dbdc')  # mercadoria
         self.t_1.place(relx=0.57, rely=0.17, relwidth=0.1, relheight=0.03)
+
+        self.t_2 = Label(self.root, text="Nome", font=('Roboto', 10), background='#d9dbdc')  # nome
+        self.t_2.place(relx=0.263, rely=0.069, relwidth=0.1, relheight=0.03)
+
+        self.t_3 = Label(self.root, text="RG/CPF", font=('Roboto', 8), background='#d9dbdc')  # Rg cpf
+        self.t_3.place(relx=0.565, rely=0.07, relwidth=0.1, relheight=0.03)
+
+        self.t_4 = Label(self.root, text="Nota", font=('Roboto', 10), background='#d9dbdc')  # nota
+        self.t_4.place(relx=0.068, rely=0.17, relwidth=0.1, relheight=0.03)
+
+        self.t_5 = Label(self.root, text="Fornecedor", font=('Roboto', 10), background='#d9dbdc')  # fornecedor
+        self.t_5.place(relx=0.275, rely=0.17, relwidth=0.1, relheight=0.03)
+
+        self.t_6 = Label(self.root, text="Mercadoria", font=('Roboto', 10), background='#d9dbdc')  # mercadoria
+        self.t_6.place(relx=0.574, rely=0.17, relwidth=0.1, relheight=0.03)
 
     def treeview(self):
         self.tree = ttk.Treeview(self.root, columns=('Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota'),
