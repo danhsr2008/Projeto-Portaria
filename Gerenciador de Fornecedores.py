@@ -12,9 +12,23 @@ root = tk.Tk()
 
 class funcoes:
     def __init__(self):
+        self.hora = None
         self.data = None
 
     def cap_dados(self):
+
+        if self.e_placa.get() == '' or self.e_placa.get() == ' ': # escrever match para os entrys
+            messagebox.showerror(title='ERRO', message='Insira um dado válido')
+
+            self.e_placa.delete(0, END)
+            self.e_nome.delete(0, END)
+            self.e_rg.delete(0, END)
+            self.e_nota.delete(0, END)
+            self.e_forn.delete(0, END)
+            self.e_merc.delete(0, END)
+            self.e_placa.focus()
+            return False
+
         self.tree.insert(
             "", END, values=(self.data.get(), self.e_placa.get(),
                              self.e_nome.get(), self.e_rg.get(),
@@ -29,16 +43,6 @@ class funcoes:
         self.e_forn.delete(0, END)
         self.e_merc.delete(0, END)
         self.e_placa.focus()
-
-        '''try:
-            while True:
-                if self.e_placa.get() == '':
-                    self.tree.delete(self.tree.get_children())
-                    messagebox.showerror('Erro', 'Preencha todos os campos!')
-                    break
-
-        except ValueError:
-            pass'''
 
     def delete_(self):
         try:
@@ -69,6 +73,7 @@ class Principal(funcoes):
 
     def __init__(self):
         super().__init__()
+        self.b_2 = None
         self.t_2 = None
         self.t_3 = None
         self.t_4 = None
@@ -161,7 +166,7 @@ class Principal(funcoes):
 
     def treeview(self):
         self.tree = ttk.Treeview(self.root, columns=(
-        'Data', 'Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora'),
+            'Data', 'Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora'),
                                  show='headings')
         '''style = ttk.Style()
         style.configure("Treeview.Heading", font=('Roboto', 11))'''
@@ -178,7 +183,7 @@ class Principal(funcoes):
 
         self.tree.column("#0", width=0)
         self.tree.column("#1", width=20)  # data
-        self.tree.column("#2", width=100)  # placa
+        self.tree.column("#2", width=30)  # placa
         self.tree.column("#3", width=100)  # nome
         self.tree.column("#4", width=100)  # rg_cpf
         self.tree.column("#5", width=150)  # fornecedor
