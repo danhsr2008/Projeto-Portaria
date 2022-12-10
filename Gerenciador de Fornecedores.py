@@ -3,11 +3,9 @@ import tkinter as tk
 from tkinter import ttk, Scrollbar, font, messagebox
 from tkinter.font import nametofont
 import datetime
+from time import sleep
 
 root = tk.Tk()
-
-
-# hora = StringVar()
 
 
 class funcoes:
@@ -17,32 +15,25 @@ class funcoes:
 
     def cap_dados(self):
 
-        if self.e_placa.get() == '' or self.e_placa.get() == ' ': # escrever match para os entrys
-            messagebox.showerror(title='ERRO', message='Insira um dado válido')
-
-            self.e_placa.delete(0, END)
-            self.e_nome.delete(0, END)
-            self.e_rg.delete(0, END)
-            self.e_nota.delete(0, END)
-            self.e_forn.delete(0, END)
-            self.e_merc.delete(0, END)
-            self.e_placa.focus()
+        if self.e_placa.get() == '':  # escrever match para os entrys
+            messagebox.showerror(title='ERRO',
+                                 message='Insira um dado válido\n\nPreencha o campo com \"ESPAÇO\" se não houver')
+            self.limpar()
             return False
 
-        self.tree.insert(
-            "", END, values=(self.data.get(), self.e_placa.get(),
-                             self.e_nome.get(), self.e_rg.get(),
-                             self.e_forn.get(), self.e_merc.get(),
-                             self.e_nota.get(), self.hora.get()))
-        ttk.Style().configure("Treeview", font=('Roboto', 12), rowheight=30, background='#d9dbdc', foreground='#000000')
+        else:
+            '''messagebox.showinfo(title='Sucesso', message='Dados capturados com sucesso!\n \n '
+                                                         '*Verifique Agendamento!\n *Consulte Peso!')'''
+            pass
 
-        self.e_placa.delete(0, END)
-        self.e_nome.delete(0, END)
-        self.e_rg.delete(0, END)
-        self.e_nota.delete(0, END)
-        self.e_forn.delete(0, END)
-        self.e_merc.delete(0, END)
-        self.e_placa.focus()
+        self.tree.insert(
+            "", END, values=(self.data.get(), self.e_placa.get().upper(),
+                             self.e_nome.get().upper(), self.e_rg.get().upper(),
+                             self.e_forn.get().upper(), self.e_merc.get().upper(),
+                             self.e_nota.get().upper(), self.hora.get()))
+        ttk.Style().configure("Treeview", font=('Roboto', 11), rowheight=30, background='#d9dbdc', foreground='#000000')
+
+        self.limpar()
 
     def delete_(self):
         try:
@@ -50,6 +41,15 @@ class funcoes:
             self.tree.delete(item_selection)
         except IndexError:
             messagebox.showerror("Erro", "Selecione um item para deletar")
+
+    def limpar(self):
+        self.e_placa.delete(0, END)
+        self.e_nome.delete(0, END)
+        self.e_rg.delete(0, END)
+        self.e_nota.delete(0, END)
+        self.e_forn.delete(0, END)
+        self.e_merc.delete(0, END)
+        self.e_placa.focus()
 
     def data_(self):
         while True:
@@ -112,7 +112,7 @@ class Principal(funcoes):
 
         self.e_rg = Entry(self.root, width=25, font=('Roboto', 23))  # RG CPF
         self.e_rg.place(relx=0.59, rely=0.1, relwidth=0.22, relheight=0.05)
-        #######################################################################################################
+
         self.e_nota = Entry(self.root, width=25, font=('Roboto', 23))  # NOTA
         self.e_nota.place(relx=0.1, rely=0.2, relwidth=0.15, relheight=0.05)
 
