@@ -7,24 +7,35 @@ from time import sleep
 
 root = tk.Tk()
 
-
 class funcoes:
     def __init__(self):
+        self.dados = None
         self.hora = None
         self.data = None
 
     def cap_dados(self):
-
-        if self.e_placa.get() == '':  # escrever match para os entrys
-            messagebox.showerror(title='ERRO',
-                                 message='Insira um dado válido\n\nPreencha o campo com \"ESPAÇO\" se não houver')
-            self.limpar()
-            return False
-
-        else:
-            '''messagebox.showinfo(title='Sucesso', message='Dados capturados com sucesso!\n \n '
-                                                         '*Verifique Agendamento!\n *Consulte Peso!')'''
-            pass
+        dados = [
+            self.e_placa.get(), self.e_nome.get(), self.e_rg.get(),
+            self.e_nota.get(), self.e_forn.get(), self.e_merc.get()
+        ]
+        try:
+            for item in dados:
+                match item:
+                    case '':
+                        messagebox.showinfo("Erro",
+                                            "Algum Campo Vazio!\n\nPreencha o campo com \"ESPAÇO\" se não houver")
+                        self.limpar()
+                        return False
+                    case _:
+                        pass
+        except SyntaxError or KeyError:
+            for item in dados:
+                if item == '':
+                    messagebox.showinfo("Erro", "Algum Campo Vazio!\n\nPreencha o campo com \"ESPAÇO\" se não houver")
+                    self.limpar()
+                    return False
+                else:
+                    pass
 
         self.tree.insert(
             "", END, values=(self.data.get(), self.e_placa.get().upper(),
@@ -67,12 +78,12 @@ class funcoes:
             self.root.after(1000, self.hora_)  # 1000 = 1 minuto
             break
 
-
 class Principal(funcoes):
     scroll: Scrollbar
 
     def __init__(self):
         super().__init__()
+        self.m_1 = None
         self.b_2 = None
         self.t_2 = None
         self.t_3 = None
