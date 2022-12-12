@@ -3,12 +3,15 @@ import tkinter as tk
 from tkinter import ttk, Scrollbar, font, messagebox
 from tkinter.font import nametofont
 import datetime
-from time import sleep
+import pyperclip as pc
 
 root = tk.Tk()
 
+
 class funcoes:
+
     def __init__(self):
+        self.pop_menu_mnu = None
         self.dados = None
         self.hora = None
         self.data = None
@@ -67,7 +70,7 @@ class funcoes:
             self.data = datetime.datetime.now()
             self.data = self.data.strftime("%d/%m")
             self.data = StringVar(value=self.data)
-            self.root.after(1440000, self.data_)  # 1440000 = 24 horas
+            self.root.after(1440000, self.data_)  # 1440000 = 24 horas # erro de 1 dia
             break
 
     def hora_(self):
@@ -77,6 +80,40 @@ class funcoes:
             self.hora = StringVar(value=self.hora)
             self.root.after(1000, self.hora_)  # 1000 = 1 minuto
             break
+
+    # MENU POPUP
+    def pop_menu(self):
+        self.pop_menu_mnu = tk.Menu(self.root, tearoff=0)
+        self.pop_menu_mnu.add_command(label='Copiar', command=self.copy_paste)  # copia o item selecionado
+        self.pop_menu_mnu.add_command(label='Autorizado', command=self.copy_paste)  # Marcar com autorizado (amarelo)
+        self.pop_menu_mnu.add_command(label='Liberado', command=self.copy_paste)  # Marcar como liberado (verde)
+        self.pop_menu_mnu.add_command(label='Cancelar', command=self.copy_paste)  # Marcar como cancelado (vermelho)
+        self.pop_menu_mnu.add_command(label='Deletar', command=self.delete_)  # deletar item
+        self.pop_menu_mnu.add_command(label='Linkar',
+                                      command=self.copy_paste)  # inicia um focus para o registro linkado
+        self.pop_menu_mnu.add_command(label='Informações',
+                                      command=self.copy_paste)  # mostra uma label com todas informações do item selecionado
+
+    def popup_menu_method(self, event):
+        try:
+            self.pop_menu_mnu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.pop_menu_mnu.grab_release()
+
+    def copy_paste(self):
+        try:
+            # convertendo o item selecionado em string
+            item_selection = self.tree.selection()[0]
+            item_selection = self.tree.item(item_selection, 'values')
+            item_selection = str(item_selection)
+            item_selection = item_selection.replace("'", "")
+            item_selection = item_selection.replace("(", "")
+            item_selection = item_selection.replace(")", "")
+            item = item_selection
+            pc.copy(item)
+        except IndexError:
+            messagebox.showerror("Erro", "Selecione um item para copiar")
+
 
 class Principal(funcoes):
     scroll: Scrollbar
@@ -107,12 +144,17 @@ class Principal(funcoes):
         self.treeview()
         self.data_()
         self.hora_()
+        # self.time_live()
         root.mainloop()
 
     def screen(self):
-        self.root.title("Gerenciador de Fornecedores v_1.0")
+        self.root.title("Controle de Acesso - V1.0")
         self.root.configure(background='#d9dbdc')
         self.root.geometry('1300x650')
+
+        # ----- menu popup -----
+        self.pop_menu()
+        self.root.bind('<Button-3>', self.popup_menu_method)  # criar uma def para binds
 
     def entrys(self):
         self.e_placa = Entry(self.root, width=25, font=('Roboto', 23))  # PLACA
@@ -137,9 +179,6 @@ class Principal(funcoes):
         self.b_1 = Button(self.root, text="Registrar", font=('Roboto', 10), background='#d9dbdc',
                           command=self.cap_dados)
         self.b_1.place(relx=0.84, rely=0.1, relwidth=0.06, relheight=0.05)
-
-        self.b_2 = Button(self.root, text="Deletar", font=('Roboto', 10), background='#d9dbdc', command=self.delete_)
-        self.b_2.place(relx=0.84, rely=0.2, relwidth=0.06, relheight=0.05)
 
     def tagg(self):
         self.t_1 = Label(self.root, text="Placa", font=('Roboto', 10), background='#d9dbdc')  # placa
@@ -176,9 +215,9 @@ class Principal(funcoes):
         self.t_6.place(relx=0.574, rely=0.17, relwidth=0.1, relheight=0.03)
 
     def treeview(self):
-        self.tree = ttk.Treeview(self.root, columns=(
-            'Data', 'Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora'),
-                                 show='headings')
+        column_names = ('Data', 'Placa', 'Nome', 'RG_CPF', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora')
+        self.tree = ttk.Treeview(self.root, columns=column_names, show='headings')
+
         '''style = ttk.Style()
         style.configure("Treeview.Heading", font=('Roboto', 11))'''
         nametofont("TkHeadingFont").configure(size=10, weight='bold')
