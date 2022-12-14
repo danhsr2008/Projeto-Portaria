@@ -116,23 +116,23 @@ class funcoes:
             
             
             
-"""def unselect(event):
-    # Obtém o widget que foi clicado
-    widget = event.widget
-
-    # Obtém o item selecionado
-    selection = widget.selection()
-
-    # Se houver um item selecionado
-    if selection:
-        # Deseleciona o item
-        widget.selection_remove(selection)
-"""
-
-"""treeview.bind('<Button-1>', unselect)
-"""
+"""def un_select(event):
+    self.treeview.selection_remove()
+    self.treeview.bind('<Button>, self.un_select)
             
-            
+# criar o Treeview
+tree = tkinter.Treeview(root)
+
+# adicionar alguns itens ao Treeview
+tree.insert("", "end", "item1", text="Item 1")
+tree.insert("", "end", "item2", text="Item 2")
+
+# obter o ID do item que deseja editar
+item_id = tree.identify_row(event.y)
+
+# alterar o texto exibido na célula do item
+tree.itemconfigure(item_id, text="Novo texto")
+"""
 
 
 class Principal(funcoes):
