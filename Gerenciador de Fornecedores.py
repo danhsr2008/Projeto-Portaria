@@ -113,6 +113,26 @@ class funcoes:
             pc.copy(item)
         except IndexError:
             messagebox.showerror("Erro", "Selecione um item para copiar")
+            
+            
+            
+"""def unselect(event):
+    # Obtém o widget que foi clicado
+    widget = event.widget
+
+    # Obtém o item selecionado
+    selection = widget.selection()
+
+    # Se houver um item selecionado
+    if selection:
+        # Deseleciona o item
+        widget.selection_remove(selection)
+"""
+
+"""treeview.bind('<Button-1>', unselect)
+"""
+            
+            
 
 
 class Principal(funcoes):
