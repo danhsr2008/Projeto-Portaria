@@ -116,11 +116,11 @@ class funcoes:
             
             
             
-"""def un_select(event):
+def un_select(event):
     self.treeview.selection_remove()
     self.treeview.bind('<Button>, self.un_select)
             
-# criar o Treeview
+"""# criar o Treeview
 tree = tkinter.Treeview(root)
 
 # adicionar alguns itens ao Treeview
@@ -270,3 +270,24 @@ class Principal(funcoes):
 
 
 Principal()
+
+"""A sua classe funcoes estende a classe Principal e, nesse caso, a função un_select deve ser definida como um método de instância da classe funcoes, como no exemplo abaixo:
+
+class Principal(funcoes):
+    # código da classe Principal
+    
+class funcoes:
+    def un_select(self, event):
+        self.treeview.selection_remove()
+        self.treeview.bind('<Button>', self.un_select)
+
+Nesse exemplo, a função un_select é um método de instância da classe funcoes e pode ser acessado através de uma instância dessa classe (como, por exemplo, funcoes()).
+
+É importante lembrar que, como o método un_select recebe o parâmetro self, que representa a própria instância da classe, é necessário passar esse parâmetro quando chamamos o método, como no exemplo abaixo:
+
+# criando uma instância da classe funcoes
+funcoes_instance = funcoes()
+
+# chamando o método un_select da instância criada
+funcoes_instance.un_select(event)
+"""
