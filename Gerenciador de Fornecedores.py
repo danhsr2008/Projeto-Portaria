@@ -1,17 +1,24 @@
-from tkinter import *
-import tkinter as tk
-from tkinter import ttk, Scrollbar, font, messagebox
-from tkinter.font import nametofont
 import datetime
+import tkinter as tk
+from tkinter import *
+from tkinter import ttk, Scrollbar, messagebox, StringVar
+from tkinter.font import nametofont
 import pyperclip as pc
-import time
 
 root = tk.Tk()
 
 
-class funcoes:
+class Funcoes:
+    hora_subida: StringVar
 
     def __init__(self):
+        self.e_rg = None
+        self.tree = None
+        self.e_nota = None
+        self.e_placa = None
+        self.e_merc = None
+        self.e_forn = None
+        self.e_nome = None
         self.info_window = None
         self.hora_label = None
         self.pop_menu_mnu = None
@@ -45,8 +52,6 @@ class funcoes:
                              self.e_forn.get().upper(), self.e_merc.get().upper(),
                              self.e_nota.get().upper(), self.hora.get()))
         ttk.Style().configure("Treeview", font=('Roboto', 11), rowheight=30, background='#d9dbdc', foreground='#000000')
-
-        self.limpar()
 
     def delete_(self):
         try:
@@ -89,6 +94,7 @@ class funcoes:
         self.pop_menu_mnu.add_command(label='Cancelar/Reprovado', command=self.cancelado)
         self.pop_menu_mnu.add_command(label='Deletar', command=self.delete_)
         self.pop_menu_mnu.add_command(label='Linkar', command=self.copy_paste)
+        self.pop_menu_mnu.add_separator()
         self.pop_menu_mnu.add_command(label='Informações', command=self.mostrar_informacoes)
 
     def popup_menu_method(self, event):
@@ -101,6 +107,21 @@ class funcoes:
         item_selection = self.tree.selection()
         self.tree.tag_configure('azul', background='#9bb0ff')
         self.tree.item(item_selection, tags=('azul',))
+        self.update_item()
+
+    def update_item(self):
+        hora_sub: str = datetime.datetime.now().strftime("%H:%M")
+        item_sel = self.tree.selection()[0]
+        try:
+            if item_sel:
+                if self.autorizado():
+                    self.tree.item(hora_sub, )
+                else:
+                    print('deu ruim no if interno de update_item')
+            else:
+                print('deu ruim no if externo de update_item')
+        finally:
+            pass
 
     def mostrar_informacoes(self):
         # Get the selected item
@@ -111,7 +132,6 @@ class funcoes:
 
         # Get the information about the selected item
         informacoes = self.tree.item(selecionado)['values']
-
 
         # Create a window to display the information
         self.info_window = tk.Toplevel(self.root)
@@ -172,7 +192,7 @@ class funcoes:
         self.tree.tag_configure('cinza', background='#656565', foreground='#ffffff')
 
 
-class Principal(funcoes):
+class Principal(Funcoes):
     scroll: Scrollbar
 
     def __init__(self):
@@ -272,7 +292,8 @@ class Principal(funcoes):
         self.t_6.place(relx=0.574, rely=0.17, relwidth=0.1, relheight=0.03)
 
     def treeview(self):
-        column_names = ('Data', 'Placa', 'Nome', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora_chegada', 'Hr_subida', 'Hr_descida')
+        column_names = (
+            'Data', 'Placa', 'Nome', 'rg_cpf', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora_chegada', 'Hora_Subida', '')
         self.tree = ttk.Treeview(self.root, columns=column_names, show='headings')
 
         '''style = ttk.Style()
@@ -282,32 +303,32 @@ class Principal(funcoes):
         self.tree.heading("#1", text="Data")
         self.tree.heading("#2", text="Placa")
         self.tree.heading("#3", text="Nome")
-        # self.tree.heading("#4", text="RG/CPF")
-        self.tree.heading("#4", text="Fornecedor")
-        self.tree.heading("#5", text="Mercadoria")
-        self.tree.heading("#6", text="Nota")
-        self.tree.heading("#7", text="Hora")
-        self.tree.heading("#8", text="Hr_subida")
-        self.tree.heading("#9", text="Hr_descida")
+        self.tree.heading("#4", text="RG/CPF")
+        self.tree.heading("#5", text="Fornecedor")
+        self.tree.heading("#6", text="Mercadoria")
+        self.tree.heading("#7", text="Nota")
+        self.tree.heading("#8", text="Hora")
+        self.tree.heading("#9", text="Hora Subida")
+        self.tree.heading("#10", text='')
 
-        self.tree.column("#0", width=0, anchor='center')
-        self.tree.column("#1", width=20, anchor='center')  # data
-        self.tree.column("#2", width=30, anchor='center')  # placa
-        self.tree.column("#3", width=100, anchor='center')  # nome
-        # self.tree.column("#4", width=100, anchor='center')  # rg_cpf
-        self.tree.column("#4", width=150, anchor='center')  # fornecedor
-        self.tree.column("#5", width=100, anchor='center')  # mercadoria
-        self.tree.column("#6", width=100, anchor='center')  # nota
-        self.tree.column("#7", width=40, anchor='center')  # hora
-        self.tree.column("#8", width=40, anchor='center')  # hora subida
-        self.tree.column("#9", width=40, anchor='center')  # hora descida
+        self.tree.column("#0", width=0, stretch=NO)
+        self.tree.column("#1", width=30, anchor='center')  # data
+        self.tree.column("#2", width=50, anchor='center')  # placa
+        self.tree.column("#3", width=140, anchor='center')  # nome
+        self.tree.column("#4", width=100, anchor='center')  # rg_cpf
+        self.tree.column("#5", width=170, anchor='center')  # fornecedor
+        self.tree.column("#6", width=140, anchor='center')  # mercadoria
+        self.tree.column("#7", width=100, anchor='center')  # nota
+        self.tree.column("#8", width=40, anchor='center')  # hora
+        self.tree.column("#9", width=80, anchor='center')  # hora_subida
+        self.tree.column("#10", width=0, anchor='center')  # vazio (espaço para scroll)
 
         self.tree.place(relx=0.1, rely=0.3, relwidth=0.8, relheight=0.6)
 
         self.scroll = Scrollbar(self.tree, orient=VERTICAL)
         self.tree.configure(yscrollcommand=self.scroll.set)
         self.scroll.config(command=self.tree.yview)
-        self.scroll.place(relx=0.979, rely=0.002, relwidth=0.02, relheight=0.995)
+        self.scroll.place(relx=0.979, rely=0.003, relwidth=0.02, relheight=0.995)
 
 
 Principal()

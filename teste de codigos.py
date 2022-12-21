@@ -6,6 +6,12 @@ import datetime
 class Application:
 
     def __init__(self, root):
+        self.e_rg = None
+        self.e_placa = None
+        self.e_merc = None
+        self.e_nome = None
+        self.tree = None
+        self.e_nota = None
         self.root = root
         self.popup_menu = None
         self.data = None
@@ -129,7 +135,7 @@ class Application:
     def color_menu(self):
         try:
             item_selection = self.tree.selection()[0]
-            self.tree.item(item_selection, tags=('blue'))
+            self.tree.item(item_selection, tags='blue')
             self.tree.tag_configure('blue', background='#0000ff')
             self.tree.update()
         except IndexError:
