@@ -85,7 +85,7 @@ class Funcoes:
         self.pop_menu_mnu.add_command(label='Liberado', command=self.liberado)
         self.pop_menu_mnu.add_command(label='Cancelar/Reprovado', command=self.cancelado)
         self.pop_menu_mnu.add_command(label='Deletar', command=self.delete_)
-        self.pop_menu_mnu.add_command(label='Linkar', command=self.copy_paste)
+        self.pop_menu_mnu.add_command(label='Aguardar', command=self.aguardar)
         self.pop_menu_mnu.add_separator()
         self.pop_menu_mnu.add_command(label='Informações', command=self.mostrar_informacoes)
 
@@ -140,6 +140,11 @@ class Funcoes:
         except IndexError:
             messagebox.showerror("Erro", "Autorizar primeiro")
 
+    def aguardar(self):
+        item_selection: object = self.tree.selection()[0]
+        self.tree.tag_configure('laranja', background='#FF9D49')
+        self.tree.item(item_selection, tags=('laranja',))
+
     def limpar(self):  # testar if True
         self.e_placa.delete(0, END)
         self.e_nome.delete(0, END)
@@ -162,7 +167,7 @@ class Funcoes:
         # Create a window to display the information
         self.info_window = tk.Toplevel(self.root)
         self.info_window.title("Informações")
-        self.info_window.geometry("300x280")  # Set window size
+        self.info_window.geometry("350x180")  # Set window size
         self.info_window.geometry("+{}+{}".format(self.root.winfo_screenwidth() // 2 - 150,
                                                   self.root.winfo_screenheight() // 2 - 100))  # Center window on screen
 
@@ -178,25 +183,22 @@ class Funcoes:
 
         try:
             hora_subida_label = tk.Label(self.info_window, text="Hora Subida: {}".format(informacoes[8]))
-            hora_subida_label.pack()
+            hora_subida_label.grid(column=2, row=1)
 
             hora_liberado_label = tk.Label(self.info_window, text="Hora Liberado: {}".format(informacoes[9]))
-            hora_liberado_label.pack()
+            hora_liberado_label.grid(column=3, row=1)
         except IndexError:
             pass
 
-
-
-
         # Display the labels in the toplevel window
-        hora_label.pack()
-        data_label.pack()
-        placa_label.pack()
-        nome_label.pack()
-        rg_cpf_label.pack()
-        fornecedor_label.pack()
-        mercadoria_label.pack()
-        nota_label.pack()
+        hora_label.grid(column=1, row=1)
+        data_label.grid(column=1, row=4)
+        placa_label.grid(column=2, row=4)
+        nome_label.grid(column=3, row=4)
+        rg_cpf_label.grid(column=1, row=5)
+        fornecedor_label.grid(column=2, row=5)
+        mercadoria_label.grid(column=3, row=5)
+        nota_label.grid(column=1, row=6)
 
     def copy_paste(self):
         try:
@@ -231,8 +233,6 @@ class Principal(Funcoes):
 
     def __init__(self):
         super().__init__()
-
-        self.edit_btn = None
         self.m_1 = None
         self.b_2 = None
         self.t_2 = None
@@ -350,7 +350,7 @@ class Principal(Funcoes):
 
         self.tree.column("#0", width=0, stretch=NO)
         self.tree.column("#1", width=40, anchor='center')  # data
-        self.tree.column("#2", width=50, anchor='center')  # placa
+        self.tree.column("#2", width=60, anchor='center')  # placa
         self.tree.column("#3", width=140, anchor='center')  # nome
         self.tree.column("#4", width=100, anchor='center')  # rg_cpf
         self.tree.column("#5", width=170, anchor='center')  # fornecedor
