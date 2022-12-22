@@ -9,7 +9,7 @@ root = tk.Tk()
 
 
 class Funcoes:
-    hora_subida: StringVar
+    # hora_subida: StringVar
 
     def __init__(self):
         self.e_rg = None
@@ -52,6 +52,7 @@ class Funcoes:
                              self.e_forn.get().upper(), self.e_merc.get().upper(),
                              self.e_nota.get().upper(), self.hora.get()))
         ttk.Style().configure("Treeview", font=('Roboto', 11), rowheight=30, background='#d9dbdc', foreground='#000000')
+        self.limpar()
 
     def delete_(self):
         try:
@@ -59,15 +60,6 @@ class Funcoes:
             self.tree.delete(item_selection)
         except IndexError:
             messagebox.showerror("Erro", "Selecione um item para deletar")
-
-    def limpar(self):
-        self.e_placa.delete(0, END)
-        self.e_nome.delete(0, END)
-        self.e_rg.delete(0, END)
-        self.e_nota.delete(0, END)
-        self.e_forn.delete(0, END)
-        self.e_merc.delete(0, END)
-        self.e_placa.focus()
 
     def data_(self):
         while True:
@@ -107,21 +99,15 @@ class Funcoes:
         item_selection = self.tree.selection()
         self.tree.tag_configure('azul', background='#9bb0ff')
         self.tree.item(item_selection, tags=('azul',))
-        self.update_item()
 
-    def update_item(self):
-        hora_sub: str = datetime.datetime.now().strftime("%H:%M")
-        item_sel = self.tree.selection()[0]
-        try:
-            if item_sel:
-                if self.autorizado():
-                    self.tree.item(hora_sub, )
-                else:
-                    print('deu ruim no if interno de update_item')
-            else:
-                print('deu ruim no if externo de update_item')
-        finally:
-            pass
+    def limpar(self):
+        self.e_placa.delete(0, END)
+        self.e_nome.delete(0, END)
+        self.e_rg.delete(0, END)
+        self.e_nota.delete(0, END)
+        self.e_forn.delete(0, END)
+        self.e_merc.delete(0, END)
+        self.e_placa.focus()
 
     def mostrar_informacoes(self):
         # Get the selected item
@@ -198,6 +184,7 @@ class Principal(Funcoes):
     def __init__(self):
         super().__init__()
 
+        self.edit_btn = None
         self.m_1 = None
         self.b_2 = None
         self.t_2 = None
