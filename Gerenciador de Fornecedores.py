@@ -28,6 +28,8 @@ class Funcoes:
         self.root = root
         self.root.bind("<Button-1>", lambda event: self.unselect(event))
         self.hora = StringVar()
+        self.hora_subida = StringVar()
+        self.hora_liberado = StringVar()
 
     def cap_dados(self):
         dados = [
@@ -63,16 +65,14 @@ class Funcoes:
 
     def data_(self):
         while True:
-            self.data = datetime.datetime.now()
-            self.data = self.data.strftime("%d/%m")
+            self.data = datetime.datetime.now().strftime("%d/%m")
             self.data = StringVar(value=self.data)
             self.root.after(86400000, self.data_)  # 86400000 = 24 horas
             break
 
     def hora_(self):
         while True:
-            self.hora = datetime.datetime.now()
-            self.hora = self.hora.strftime("%H:%M")
+            self.hora = datetime.datetime.now().strftime("%H:%M")
             self.hora = StringVar(value=self.hora)
             self.root.after(60000, self.hora_)  # 60000 = 1 minuto
             break
@@ -82,7 +82,7 @@ class Funcoes:
         self.pop_menu_mnu = tk.Menu(self.root, tearoff=0)
         self.pop_menu_mnu.add_command(label='Copiar', command=self.copy_paste)  # copia o item selecionado
         self.pop_menu_mnu.add_command(label="Autorizado/Agendado", command=self.autorizado)
-        self.pop_menu_mnu.add_command(label='Liberado Pelo Conferente', command=self.liberado)
+        self.pop_menu_mnu.add_command(label='Liberado', command=self.liberado)
         self.pop_menu_mnu.add_command(label='Cancelar/Reprovado', command=self.cancelado)
         self.pop_menu_mnu.add_command(label='Deletar', command=self.delete_)
         self.pop_menu_mnu.add_command(label='Linkar', command=self.copy_paste)
@@ -96,11 +96,51 @@ class Funcoes:
             self.pop_menu_mnu.grab_release()
 
     def autorizado(self):
-        item_selection = self.tree.selection()
+        print('captura hora: ok')
+        item_selection: object = self.tree.selection()[0]
         self.tree.tag_configure('azul', background='#9bb0ff')
         self.tree.item(item_selection, tags=('azul',))
+        try:
+            self.hora_subida = datetime.datetime.now().strftime("%H:%M")
+            self.hora_subida = StringVar(value=self.hora_subida)
 
-    def limpar(self):
+            # atualizar o item selecionado com a hora de subida
+            self.tree.item(self.tree.selection()[0], values=(self.tree.item(self.tree.selection()[0])['values'][0],
+                                                             self.tree.item(self.tree.selection()[0])['values'][1],
+                                                             self.tree.item(self.tree.selection()[0])['values'][2],
+                                                             self.tree.item(self.tree.selection()[0])['values'][3],
+                                                             self.tree.item(self.tree.selection()[0])['values'][4],
+                                                             self.tree.item(self.tree.selection()[0])['values'][5],
+                                                             self.tree.item(self.tree.selection()[0])['values'][6],
+                                                             self.tree.item(self.tree.selection()[0])['values'][7],
+                                                             self.hora_subida.get()))
+        except IndexError:
+            messagebox.showerror("Erro", "Selecione um item para autorizar/agendar")
+
+    def liberado(self):
+        print('captura hora: ok')
+        item_selection: object = self.tree.selection()[0]
+        self.tree.tag_configure('verde', background='#9bff9b')
+        self.tree.item(item_selection, tags=('verde',))
+        try:
+            self.hora_liberado = datetime.datetime.now().strftime("%H:%M")
+            self.hora_liberado = StringVar(value=self.hora_liberado)
+
+            # atualizar o item selecionado com a hora de subida
+            self.tree.item(self.tree.selection()[0], values=(self.tree.item(self.tree.selection()[0])['values'][0],
+                                                             self.tree.item(self.tree.selection()[0])['values'][1],
+                                                             self.tree.item(self.tree.selection()[0])['values'][2],
+                                                             self.tree.item(self.tree.selection()[0])['values'][3],
+                                                             self.tree.item(self.tree.selection()[0])['values'][4],
+                                                             self.tree.item(self.tree.selection()[0])['values'][5],
+                                                             self.tree.item(self.tree.selection()[0])['values'][6],
+                                                             self.tree.item(self.tree.selection()[0])['values'][7],
+                                                             self.tree.item(self.tree.selection()[0])['values'][8],
+                                                             self.hora_liberado.get()))
+        except IndexError:
+            messagebox.showerror("Erro", "Autorizar primeiro")
+
+    def limpar(self):  # testar if True
         self.e_placa.delete(0, END)
         self.e_nome.delete(0, END)
         self.e_rg.delete(0, END)
@@ -122,7 +162,7 @@ class Funcoes:
         # Create a window to display the information
         self.info_window = tk.Toplevel(self.root)
         self.info_window.title("Informações")
-        self.info_window.geometry("300x200")  # Set window size
+        self.info_window.geometry("300x280")  # Set window size
         self.info_window.geometry("+{}+{}".format(self.root.winfo_screenwidth() // 2 - 150,
                                                   self.root.winfo_screenheight() // 2 - 100))  # Center window on screen
 
@@ -136,7 +176,20 @@ class Funcoes:
         nota_label = tk.Label(self.info_window, text="Nota: {}".format(informacoes[6]))
         hora_label = tk.Label(self.info_window, text="Hora Chegada: {}".format(informacoes[7]))
 
+        try:
+            hora_subida_label = tk.Label(self.info_window, text="Hora Subida: {}".format(informacoes[8]))
+            hora_subida_label.pack()
+
+            hora_liberado_label = tk.Label(self.info_window, text="Hora Liberado: {}".format(informacoes[9]))
+            hora_liberado_label.pack()
+        except IndexError:
+            pass
+
+
+
+
         # Display the labels in the toplevel window
+        hora_label.pack()
         data_label.pack()
         placa_label.pack()
         nome_label.pack()
@@ -144,7 +197,6 @@ class Funcoes:
         fornecedor_label.pack()
         mercadoria_label.pack()
         nota_label.pack()
-        hora_label.pack()
 
     def copy_paste(self):
         try:
@@ -168,10 +220,6 @@ class Funcoes:
                 pass
         except IndexError:
             pass
-
-    def liberado(self):
-        self.tree.item(self.tree.selection()[0], tags=('verde',))
-        self.tree.tag_configure('verde', background='#98dd84')
 
     def cancelado(self):
         self.tree.item(self.tree.selection()[0], tags=('cinza',))
@@ -280,7 +328,8 @@ class Principal(Funcoes):
 
     def treeview(self):
         column_names = (
-            'Data', 'Placa', 'Nome', 'rg_cpf', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora_chegada', 'Hora_Subida', '')
+            'Data', 'Placa', 'Nome', 'rg_cpf', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora_chegada', 'Hora_Subida',
+            'Hora_Liberado', '')
         self.tree = ttk.Treeview(self.root, columns=column_names, show='headings')
 
         '''style = ttk.Style()
@@ -294,21 +343,23 @@ class Principal(Funcoes):
         self.tree.heading("#5", text="Fornecedor")
         self.tree.heading("#6", text="Mercadoria")
         self.tree.heading("#7", text="Nota")
-        self.tree.heading("#8", text="Hora")
-        self.tree.heading("#9", text="Hora Subida")
-        self.tree.heading("#10", text='')
+        self.tree.heading("#8", text="Hr. Cheg.")
+        self.tree.heading("#9", text="Hr. Sub.")
+        self.tree.heading("#10", text="Hr. Lib.")
+        self.tree.heading("#11", text='')
 
         self.tree.column("#0", width=0, stretch=NO)
-        self.tree.column("#1", width=30, anchor='center')  # data
+        self.tree.column("#1", width=40, anchor='center')  # data
         self.tree.column("#2", width=50, anchor='center')  # placa
         self.tree.column("#3", width=140, anchor='center')  # nome
         self.tree.column("#4", width=100, anchor='center')  # rg_cpf
         self.tree.column("#5", width=170, anchor='center')  # fornecedor
         self.tree.column("#6", width=140, anchor='center')  # mercadoria
         self.tree.column("#7", width=100, anchor='center')  # nota
-        self.tree.column("#8", width=40, anchor='center')  # hora
-        self.tree.column("#9", width=80, anchor='center')  # hora_subida
-        self.tree.column("#10", width=0, anchor='center')  # vazio (espaço para scroll)
+        self.tree.column("#8", width=70, anchor='center')  # hora_chegada
+        self.tree.column("#9", width=70, anchor='center')  # hora_subida
+        self.tree.column("#10", width=70, anchor='center')  # hora liberado
+        self.tree.column("#11", width=0, anchor='center')  # vazio (espaço para scroll)
 
         self.tree.place(relx=0.1, rely=0.3, relwidth=0.8, relheight=0.6)
 
