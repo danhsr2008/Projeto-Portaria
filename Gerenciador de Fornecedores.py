@@ -26,18 +26,29 @@ class Funcoes:
         self.pop_menu_mnu = None
         self.dados = None
         self.hora = None
-        self.data = None
+        self.data_tempo = None
         self.root = root
         self.root.bind("<Button-1>", lambda event: self.unselect(event))
         self.hora = StringVar()
         self.hora_subida = StringVar()
         self.hora_liberado = StringVar()
 
+    def copy_paste(self):
+        try:
+            # convertendo o ‘item’ selecionado em string
+            item_selection = self.tree.selection()[0]
+            item_values = self.tree.item(item_selection, 'values')
+            data = ', '.join((item_values[1], item_values[2], item_values[6]))
+            pc.copy(data)
+
+        except IndexError:
+            messagebox.showerror("Erro", "Selecione um item para copiar")
+
     def cap_dados(self):
         dados = [
             self.e_placa.get(), self.e_nome.get(), self.e_nota.get(), self.e_forn.get(), self.e_merc.get()
         ]
-        '''try:
+        try:
             for item in dados:
                 if item == '':
                     messagebox.showinfo("Erro", "Algum Campo Vazio!\n\nPreencha o campo com \"ESPAÇO\" se não houver")
@@ -47,10 +58,10 @@ class Funcoes:
                     pass
         except IndexError:
             pass
-            return False'''
+            return False
 
         self.tree.insert(
-            "", END, values=(self.data.get(), self.e_placa.get().upper(), self.e_nome.get().upper(), self.e_rg.get().upper(),
+            "", END, values=(self.data_tempo.get(), self.e_placa.get().upper(), self.e_nome.get().upper(), self.e_rg.get().upper(),
                              self.e_forn.get().upper(), self.e_merc.get().upper(), self.e_nota.get().upper(), self.hora.get()))
         ttk.Style().configure("Treeview", font=('Roboto', 11), rowheight=30, background='#d9dbdc', foreground='#000000')
         self.limpar()
@@ -64,8 +75,8 @@ class Funcoes:
 
     def data_(self):
         while True:
-            self.data = datetime.datetime.now().strftime("%d/%m")
-            self.data = StringVar(value=self.data)
+            self.data_tempo = datetime.datetime.now().strftime("%d/%m")
+            self.data_tempo = StringVar(value=self.data_tempo)
             self.root.after(86400000, self.data_)  # 86400000 = 24 horas
             break
 
@@ -160,7 +171,8 @@ class Funcoes:
         # Create a window to display the information
         self.info_window = tk.Toplevel(self.root)
         self.info_window.title("Informações")
-        self.info_window.geometry("400x400")  # Set window size
+        self.info_window.geometry("390x440")  # Set window size
+        self.info_window.resizable(False, False)
         self.info_window.geometry("+{}+{}".format(self.root.winfo_screenwidth() // 2 - 150,
                                                   self.root.winfo_screenheight() // 2 - 100))  # Center window on screen
 
@@ -194,52 +206,52 @@ class Funcoes:
 
         try:
             hora_subida_label = tk.Label(self.info_window, text="Hora Subida: ")
-            hora_subida_label.grid(column=0, row=2, sticky=W, padx=20, pady=2)
+            hora_subida_label.grid(column=0, row=2, sticky=W, padx=15, pady=2)
             hr_sub_var = tk.Label(self.info_window, text='{}'.format(informacoes[8]))
-            hr_sub_var.grid(column=0, row=2, sticky=E)
+            hr_sub_var.grid(column=0, row=2, sticky=E, padx=20)
 
             hora_liberado_label = tk.Label(self.info_window, text="Hora Liberado: ")
-            hora_liberado_label.grid(column=0, row=3, sticky=W, padx=20, pady=2)
+            hora_liberado_label.grid(column=0, row=3, sticky=W, padx=15, pady=2)
             hr_lib_var = tk.Label(self.info_window, text='{}'.format(informacoes[9]))
-            hr_lib_var.grid(column=0, row=3, sticky=E)
+            hr_lib_var.grid(column=0, row=3, sticky=E, padx=20)
 
         except IndexError:
             pass
 
         # Display the labels in the toplevel window
-        hora_chegada_label.grid(column=0, row=1, sticky=W, padx=20, pady=2)
-        hr_cheg_var.grid(column=0, row=1, sticky=E)
+        hora_chegada_label.grid(column=0, row=1, sticky=W, padx=15, pady=2)
+        hr_cheg_var.grid(column=0, row=1, sticky=E, padx=20)
 
-        data_label.grid(column=0, row=4, sticky=W, padx=20, pady=2)
-        dt_label.grid(column=0, row=4, sticky=E)
+        data_label.grid(column=0, row=4, sticky=W, padx=15, pady=2)
+        dt_label.grid(column=0, row=4, sticky=E, padx=20)
 
-        placa_label.grid(column=0, row=5, sticky=W, padx=20, pady=2)
-        plc_label.grid(column=0, row=5, sticky=E)
+        placa_label.grid(column=0, row=5, sticky=W, padx=15, pady=2)
+        plc_label.grid(column=0, row=5, sticky=E, padx=20)
 
-        nome_label.grid(column=0, row=6, sticky=W, padx=20, pady=2)
-        nm_label.grid(column=0, row=6, sticky=E)
+        nome_label.grid(column=0, row=6, sticky=W, padx=15, pady=2)
+        nm_label.grid(column=0, row=6, sticky=E, padx=20)
 
-        rg_cpf_label.grid(column=0, row=7, sticky=W, padx=20, pady=2)
-        rgcpf_label.grid(column=0, row=7, sticky=E)
+        rg_cpf_label.grid(column=0, row=7, sticky=W, padx=15, pady=2)
+        rgcpf_label.grid(column=0, row=7, sticky=E, padx=20)
 
-        fornecedor_label.grid(column=0, row=8, sticky=W, padx=20, pady=2)
-        forn_label.grid(column=0, row=8, sticky=E)
+        fornecedor_label.grid(column=0, row=8, sticky=W, padx=15, pady=2)
+        forn_label.grid(column=0, row=8, sticky=E, padx=20)
 
-        mercadoria_label.grid(column=0, row=9, sticky=W, padx=20, pady=2)
-        merc_label.grid(column=0, row=9, sticky=E)
+        mercadoria_label.grid(column=0, row=9, sticky=W, padx=15, pady=2)
+        merc_label.grid(column=0, row=9, sticky=E, padx=20)
 
-        nota_label.grid(column=0, row=10, sticky=W, padx=20, pady=2)
-        nt_label.grid(column=0, row=10, sticky=E)
+        nota_label.grid(column=0, row=10, sticky=W, padx=15, pady=2)
+        nt_label.grid(column=0, row=10, sticky=E, padx=20)
 
     def entry_info_window(self):
         obs_label = tk.Label(self.info_window, text="OBSERVAÇÕES")
         obs_label.grid(column=0, row=11, pady=10, sticky=S)
-        self.obs = Text(self.info_window, font=('Roboto', 13), width=35, height=6)  # Observaçoes
+        self.obs = Text(self.info_window, font=('Roboto', 13), width=35, height=6, bg='#FFFFF0')  # Observaçoes
         self.obs.grid(column=0, row=12, sticky=W, padx=20)
 
     def button_sv_obs(self):
         self.save = Button(self.info_window, text="Save", font=('Roboto', 10), background='#d9dbdc', command=self.function_button_save)
-        self.save.grid(column=0, row=11, sticky=E)
+        self.save.grid(column=0, row=11, sticky=E, padx=20)
 
     def function_button_save(self):
         # Recupera o texto da caixa de texto
@@ -247,34 +259,20 @@ class Funcoes:
 
         # Adiciona uma quebra de linha a cada 35 caracteres
         formatted_text = ""
-        for i in range(0, len(text), 33):
-            formatted_text += text[i:i + 33] + "\n"
+        for i in range(0, len(text), 35):
+            formatted_text += text[i:i + 35] + "\n"
 
         # Atualiza a variável de texto com o texto formatado
         info_text = tk.StringVar()
         info_text.set(formatted_text)
 
         # Cria a label de texto com o texto da variável
-        label_txt = Label(self.info_window, textvariable=info_text, font=('Roboto', 11), bd=4, bg='#FDFFE8',
+        label_txt = Label(self.info_window, textvariable=info_text, font=('Roboto', 11), bd=4, bg='#FFFFF0',
                           highlightbackground='Black', highlightthickness=1, width=44, height=6, anchor='nw')
         label_txt.grid(column=0, row=12, sticky=W, padx=15)
 
         self.obs.destroy()
         self.save.destroy()
-
-    def copy_paste(self):
-        try:
-            # convertendo o ‘item’ selecionado em string
-            item_selection = self.tree.selection()[0]
-            item_selection = self.tree.item(item_selection, 'values')
-            item_selection = str(item_selection)
-            item_selection = item_selection.replace("'", "")
-            item_selection = item_selection.replace("(", "")
-            item_selection = item_selection.replace(")", "")
-            item = item_selection
-            pc.copy(item)
-        except IndexError:
-            messagebox.showerror("Erro", "Selecione um item para copiar")
 
     def unselect(self, event):
         try:
