@@ -4,12 +4,13 @@ from tkinter import *
 from tkinter import ttk, Scrollbar, messagebox, StringVar
 from tkinter.font import nametofont
 import pyperclip as pc
+import threading
+import time
 
 root = tk.Tk()
 
 
 class Funcoes:
-    # hora_subida: StringVar
 
     def __init__(self):
         self.save = None
@@ -32,17 +33,6 @@ class Funcoes:
         self.hora = StringVar()
         self.hora_subida = StringVar()
         self.hora_liberado = StringVar()
-
-    def copy_paste(self):
-        try:
-            # convertendo o ‘item’ selecionado em string
-            item_selection = self.tree.selection()[0]
-            item_values = self.tree.item(item_selection, 'values')
-            data = ', '.join((item_values[1], item_values[2], item_values[6]))
-            pc.copy(data)
-
-        except IndexError:
-            messagebox.showerror("Erro", "Selecione um item para copiar")
 
     def cap_dados(self):
         dados = [
@@ -87,10 +77,14 @@ class Funcoes:
             self.root.after(60000, self.hora_)  # 60000 = 1 minuto
             break
 
+    def copy_paste(self):
+        pass
+
     # MENU POPUP
     def pop_menu(self):
         self.pop_menu_mnu = tk.Menu(self.root, tearoff=0)
-        self.pop_menu_mnu.add_command(label='Copiar', command=self.copy_paste)  # copia o item selecionado
+        self.pop_menu_mnu.add_command(label='Copiar', command=lambda: self.on_item_clicked(event))  # copia o item selecionado
+        self.pop_menu_mnu.add_command(label='Editar', command=lambda: self.on_item_clicked(event))  # copia o item selecionado
         self.pop_menu_mnu.add_command(label='Aguardar', command=self.aguardar)
         self.pop_menu_mnu.add_command(label="Autorizado/Agendado", command=self.autorizado)
         self.pop_menu_mnu.add_command(label='Liberado', command=self.liberado)
@@ -104,6 +98,25 @@ class Funcoes:
             self.pop_menu_mnu.tk_popup(event.x_root, event.y_root)
         finally:
             self.pop_menu_mnu.grab_release()
+
+    def on_item_clicked(self, event):
+        # Obtém o item clicado
+        item = self.tree.identify('item', event.x, event.y)
+
+        # Verifica se o item é um item de primeiro nível (não é um subitem)
+        if '.' not in item:
+            # Verifica se o item já tem um widget de entrada de texto associado a ele
+            if item in self.edits:
+                # Remove o widget de entrada de texto da célula do item
+                self.edits[item].destroy()
+                del self.edits[item]
+            else:
+                # Obtém o valor da célula clicada
+                value = self.tree.item(item, 'values')[0]
+
+                # Copia o valor para a área de transferência
+                pc.copy(value)
+        self.tree.bind('<Button-1>', on_item_clicked)
 
     def autorizado(self):
         print('captura hora: ok')
@@ -247,7 +260,7 @@ class Funcoes:
         obs_label = tk.Label(self.info_window, text="OBSERVAÇÕES")
         obs_label.grid(column=0, row=11, pady=10, sticky=S)
         self.obs = Text(self.info_window, font=('Roboto', 13), width=35, height=6, bg='#FFFFF0')  # Observaçoes
-        self.obs.grid(column=0, row=12, sticky=W, padx=20)
+        self.obs.grid(column=0, row=12, padx=20)
 
     def button_sv_obs(self):
         self.save = Button(self.info_window, text="Save", font=('Roboto', 10), background='#d9dbdc', command=self.function_button_save)
@@ -259,17 +272,16 @@ class Funcoes:
 
         # Adiciona uma quebra de linha a cada 35 caracteres
         formatted_text = ""
-        for i in range(0, len(text), 35):
-            formatted_text += text[i:i + 35] + "\n"
+        for i in range(0, len(text), 29):
+            formatted_text += text[i:i + 29] + "\n"
 
         # Atualiza a variável de texto com o texto formatado
         info_text = tk.StringVar()
         info_text.set(formatted_text)
 
         # Cria a label de texto com o texto da variável
-        label_txt = Label(self.info_window, textvariable=info_text, font=('Roboto', 11), bd=4, bg='#FFFFF0',
-                          highlightbackground='Black', highlightthickness=1, width=44, height=6, anchor='nw')
-        label_txt.grid(column=0, row=12, sticky=W, padx=15)
+        label_txt = Label(self.info_window, textvariable=info_text, font=('Roboto', 11), bd=4, bg='#FFFFF0', width=44, height=6, anchor='center')
+        label_txt.grid(column=0, row=12, padx=15)
 
         self.obs.destroy()
         self.save.destroy()
@@ -293,6 +305,7 @@ class Principal(Funcoes):
 
     def __init__(self):
         super().__init__()
+        self.edits = {}
         self.m_1 = None
         self.b_2 = None
         self.t_2 = None
@@ -425,6 +438,8 @@ class Principal(Funcoes):
         self.tree.configure(yscrollcommand=self.scroll.set)
         self.scroll.config(command=self.tree.yview)
         self.scroll.place(relx=0.979, rely=0.003, relwidth=0.02, relheight=0.995)
+
+
 
 
 Principal()
