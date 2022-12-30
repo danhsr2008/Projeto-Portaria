@@ -3,9 +3,8 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk, Scrollbar, messagebox, StringVar
 from tkinter.font import nametofont
+from PIL import Image
 import pyperclip as pc
-import threading
-import time
 
 root = tk.Tk()
 
@@ -13,6 +12,13 @@ root = tk.Tk()
 class Funcoes:
 
     def __init__(self):
+        self.informacoes_ico = None
+        self.deletar_ico = None
+        self.cancelar_ico = None
+        self.liberado_ico = None
+        self.autorizado_ico = None
+        self.aguardar_ico = None
+        self.edit_icon = None
         self.save = None
         self.obs = None
         self.e_rg = None
@@ -33,6 +39,7 @@ class Funcoes:
         self.hora = StringVar()
         self.hora_subida = StringVar()
         self.hora_liberado = StringVar()
+        self.copy_icon = None
 
     def cap_dados(self):
         dados = [
@@ -51,8 +58,8 @@ class Funcoes:
             return False
 
         self.tree.insert(
-            "", END, values=(self.data_tempo.get(), self.e_placa.get().upper(), self.e_nome.get().upper(), self.e_rg.get().upper(),
-                             self.e_forn.get().upper(), self.e_merc.get().upper(), self.e_nota.get().upper(), self.hora.get()))
+            "", 0, values=(self.data_tempo.get(), self.e_placa.get().upper(), self.e_nome.get().upper(), self.e_rg.get().upper(),
+                           self.e_forn.get().upper(), self.e_merc.get().upper(), self.e_nota.get().upper(), self.hora.get()))
         ttk.Style().configure("Treeview", font=('Roboto', 11), rowheight=30, background='#d9dbdc', foreground='#000000')
         self.limpar()
 
@@ -77,27 +84,78 @@ class Funcoes:
             self.root.after(60000, self.hora_)  # 60000 = 1 minuto
             break
 
-    def copy_paste(self):
-        pass
-
     # MENU POPUP
     def pop_menu(self):
         self.pop_menu_mnu = tk.Menu(self.root, tearoff=0)
-        self.pop_menu_mnu.add_command(label='Copiar', command=self.copy_paste)  # copia o item selecionado
-        self.pop_menu_mnu.add_command(label='Editar', command=self.copy_paste)  # copia o item selecionado
-        self.pop_menu_mnu.add_command(label='Aguardar', command=self.aguardar)
-        self.pop_menu_mnu.add_command(label="Autorizado/Agendado", command=self.autorizado)
-        self.pop_menu_mnu.add_command(label='Liberado', command=self.liberado)
-        self.pop_menu_mnu.add_command(label='Cancelar/Reprovado', command=self.cancelado)
-        self.pop_menu_mnu.add_command(label='Deletar', command=self.delete_)
+
+        # resize image
+        aguardar_resize = Image.open('ico/aguardar.png')
+        aguardar_resize = aguardar_resize.resize((16, 16))
+        aguardar_resize.save('ico/aguardar_ico_small.png')
+
+        autorizado_resize = Image.open('ico/autorizado.png')
+        autorizado_resize = autorizado_resize.resize((13, 13))
+        autorizado_resize.save('ico/autorizado_ico_small.png')
+
+        liberado_resize = Image.open('ico/liberado.png')
+        liberado_resize = liberado_resize.resize((15, 15))
+        liberado_resize.save('ico/liberado_ico_small.png')
+
+        cancelar_resize = Image.open('ico/cancelar.png')
+        cancelar_resize = cancelar_resize.resize((14, 14))
+        cancelar_resize.save('ico/cancelar_ico_small.png')
+
+        deletar_resize = Image.open('ico/deletar.png')
+        deletar_resize = deletar_resize.resize((14, 14))
+        deletar_resize.save('ico/deletar_ico_small.png')
+
+        informacoes_resize = Image.open('ico/informacoes.png')
+        informacoes_resize = informacoes_resize.resize((14, 14))
+        informacoes_resize.save('ico/informacoes_ico_small.png')
+
+        # icones
+        self.copy_icon = PhotoImage(file='ico/copy.png')
+        self.edit_icon = PhotoImage(file='ico/edit.png')
+        self.aguardar_ico = PhotoImage(file='ico/aguardar_ico_small.png')
+        self.autorizado_ico = PhotoImage(file='ico/autorizado_ico_small.png')
+        self.liberado_ico = PhotoImage(file='ico/liberado_ico_small.png')
+        self.cancelar_ico = PhotoImage(file='ico/cancelar_ico_small.png')
+        self.deletar_ico = PhotoImage(file='ico/deletar_ico_small.png')
+        self.informacoes_ico = PhotoImage(file='ico/informacoes_ico_small.png')
+
+        self.pop_menu_mnu.add_command(label=' Copiar', command=self.copy_paste, image=self.copy_icon, compound='left')
+        self.pop_menu_mnu.add_command(label=' Editar', command=self.edit_mnu, image=self.edit_icon, compound='left')
+        self.pop_menu_mnu.add_command(label=' Aguardar', command=self.aguardar, image=self.aguardar_ico, compound='left')
+        self.pop_menu_mnu.add_command(label=" Autorizado/Agendado", command=self.autorizado, image=self.autorizado_ico, compound='left')
+        self.pop_menu_mnu.add_command(label=' Liberado', command=self.liberado, image=self.liberado_ico, compound='left')
+        self.pop_menu_mnu.add_command(label=' Cancelar/Reprovado', command=self.cancelado, image=self.cancelar_ico, compound='left')
+        self.pop_menu_mnu.add_command(label=' Deletar', command=self.delete_, image=self.deletar_ico, compound='left')
         self.pop_menu_mnu.add_separator()
-        self.pop_menu_mnu.add_command(label='Informações', command=self.mostrar_informacoes)
+        self.pop_menu_mnu.add_command(label=' Informações', command=self.mostrar_informacoes, image=self.informacoes_ico, compound='left')
 
     def popup_menu_method(self, event):
         try:
             self.pop_menu_mnu.tk_popup(event.x_root, event.y_root)
         finally:
             self.pop_menu_mnu.grab_release()
+
+    def copy_paste(self):
+        try:
+            # convertendo o item selecionado em string
+            item_selection1 = self.tree.selection()[0]
+            item_selection1 = self.tree.item(item_selection1, 'values')
+            item_selection1 = str(item_selection1)
+            item_selection1 = item_selection1.replace("'", "")
+            item_selection1 = item_selection1.replace("(", "")
+            item_selection1 = item_selection1.replace(")", "")
+            item1 = item_selection1
+            pc.copy(item1)
+        except IndexError:
+            messagebox.showerror("Erro", "Selecione um item para copiar")
+
+    @staticmethod
+    def edit_mnu():
+        messagebox.showinfo("Editar", "Você pode clicar duas vezes em um item para edita-lo")
 
     def autorizado(self):
         print('captura hora: ok')
@@ -119,7 +177,6 @@ class Funcoes:
             messagebox.showerror("Erro", "Selecione um item para autorizar/agendar")
 
     def liberado(self):
-        print('captura hora: ok')
         item_selection = self.tree.selection()[0]
         self.tree.tag_configure('verde', background='#9bff9b')
         self.tree.item(item_selection, tags=('verde',))
@@ -127,7 +184,7 @@ class Funcoes:
             self.hora_liberado = datetime.datetime.now().strftime("%H:%M")
             self.hora_liberado = StringVar(value=self.hora_liberado)
 
-            # atualizar o item selecionado com a hora de subida
+            # atualizar o item selecionado com a hora de decida
             self.tree.item(self.tree.selection()[0],
                            values=(
                                self.tree.item(self.tree.selection()[0])['values'][0], self.tree.item(self.tree.selection()[0])['values'][1], self.tree.item(self.tree.selection()[0])['values'][2],
@@ -142,6 +199,19 @@ class Funcoes:
         item_selection: object = self.tree.selection()[0]
         self.tree.tag_configure('laranja', background='#FF9D49')
         self.tree.item(item_selection, tags=('laranja',))
+        try:
+            self.hora = datetime.datetime.now().strftime("%H:%M")
+            self.hora = StringVar(value=self.hora)
+
+            # atualizar o item selecionado com a hora de subida
+            self.tree.item(self.tree.selection()[0],
+                           values=(
+                               self.tree.item(self.tree.selection()[0])['values'][0], self.tree.item(self.tree.selection()[0])['values'][1], self.tree.item(self.tree.selection()[0])['values'][2],
+                               self.tree.item(self.tree.selection()[0])['values'][3], self.tree.item(self.tree.selection()[0])['values'][4], self.tree.item(self.tree.selection()[0])['values'][5],
+                               self.tree.item(self.tree.selection()[0])['values'][6], self.hora.get()
+                           ))
+        except IndexError:
+            pass
 
     def limpar(self):  # testar if True
         self.e_placa.delete(0, END)
@@ -244,12 +314,19 @@ class Funcoes:
         self.obs.grid(column=0, row=12, padx=20)
 
     def button_sv_obs(self):
-        self.save = Button(self.info_window, text="Save", font=('Roboto', 10), background='#d9dbdc', command=self.function_button_save)
+        save_resize = Image.open('ico/salvar.png')
+        save_resize = save_resize.resize((27, 27))
+        save_resize.save('ico/save_ico_small.png')
+        save_img = PhotoImage(file='ico/save_ico_small.png', width=27, height=27)
+        self.save = Button(self.info_window, background='#FFFFF0', command=self.function_button_save, width=20, height=20, borderwidth=0)
+        self.save.image = save_img
+        self.save.config(image=self.save.image, compound=CENTER)
         self.save.grid(column=0, row=11, sticky=E, padx=20)
 
     def function_button_save(self):
         # Recupera o texto da caixa de texto
         text = self.obs.get("1.0", "end-1c")
+        text = text.upper()
 
         # Adiciona uma quebra de linha a cada 35 caracteres
         formatted_text = ""
@@ -277,8 +354,9 @@ class Funcoes:
             pass
 
     def cancelado(self):
-        self.tree.item(self.tree.selection()[0], tags=('cinza',))
+        item_selection = self.tree.selection()[0]
         self.tree.tag_configure('cinza', background='#656565', foreground='#ffffff')
+        self.tree.item(item_selection, tags=('cinza',))
 
 
 class Principal(Funcoes):
@@ -483,12 +561,13 @@ class Principal(Funcoes):
 
         entry_edit.place(x=column_box[0], y=column_box[1], w=column_box[2], h=column_box[3])
 
+        root_ = self.tree.winfo_toplevel()  # obtém a janela principal da interface Tkinter
+        root_.clipboard_clear()  # limpa a área de transferência
+        root_.clipboard_append(selected_text)  # copia o texto para a área de transferência
+
     @staticmethod
     def on_focus_out(event):
-        if event.widget:
-            event.widget.destroy()
-        else:
-            pass
+        event.widget.destroy()
 
     def on_enter_pressed(self, event):
         new_text = event.widget.get()
@@ -507,6 +586,9 @@ class Principal(Funcoes):
             print("Item updated:", self.tree.item(selected_iid))
         except IndexError:
             messagebox.showerror("Erro", "Botão Direito do mouse sobre o item\n\nClique em Autorizado/Agendado\n\npara definir a hora de subida ou de liberação")
+
+    def item(self, selected_iid, text):
+        pass
 
 
 Principal()
