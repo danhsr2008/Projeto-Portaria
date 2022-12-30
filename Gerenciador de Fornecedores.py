@@ -16,7 +16,6 @@ class Funcoes:
         self.save = None
         self.obs = None
         self.e_rg = None
-        self.tree = None
         self.e_nota = None
         self.e_placa = None
         self.e_merc = None
@@ -29,6 +28,7 @@ class Funcoes:
         self.hora = None
         self.data_tempo = None
         self.root = root
+        self.tree = None
         self.root.bind("<Button-1>", lambda event: self.unselect(event))
         self.hora = StringVar()
         self.hora_subida = StringVar()
@@ -83,8 +83,8 @@ class Funcoes:
     # MENU POPUP
     def pop_menu(self):
         self.pop_menu_mnu = tk.Menu(self.root, tearoff=0)
-        self.pop_menu_mnu.add_command(label='Copiar', command=lambda: self.on_item_clicked(event))  # copia o item selecionado
-        self.pop_menu_mnu.add_command(label='Editar', command=lambda: self.on_item_clicked(event))  # copia o item selecionado
+        self.pop_menu_mnu.add_command(label='Copiar', command=self.copy_paste)  # copia o item selecionado
+        self.pop_menu_mnu.add_command(label='Editar', command=self.copy_paste)  # copia o item selecionado
         self.pop_menu_mnu.add_command(label='Aguardar', command=self.aguardar)
         self.pop_menu_mnu.add_command(label="Autorizado/Agendado", command=self.autorizado)
         self.pop_menu_mnu.add_command(label='Liberado', command=self.liberado)
@@ -99,28 +99,9 @@ class Funcoes:
         finally:
             self.pop_menu_mnu.grab_release()
 
-    def on_item_clicked(self, event):
-        # Obtém o item clicado
-        item = self.tree.identify('item', event.x, event.y)
-
-        # Verifica se o item é um item de primeiro nível (não é um subitem)
-        if '.' not in item:
-            # Verifica se o item já tem um widget de entrada de texto associado a ele
-            if item in self.edits:
-                # Remove o widget de entrada de texto da célula do item
-                self.edits[item].destroy()
-                del self.edits[item]
-            else:
-                # Obtém o valor da célula clicada
-                value = self.tree.item(item, 'values')[0]
-
-                # Copia o valor para a área de transferência
-                pc.copy(value)
-        self.tree.bind('<Button-1>', on_item_clicked)
-
     def autorizado(self):
         print('captura hora: ok')
-        item_selection: object = self.tree.selection()[0]
+        item_selection = self.tree.selection()[0]
         self.tree.tag_configure('azul', background='#9bb0ff')
         self.tree.item(item_selection, tags=('azul',))
         try:
@@ -139,7 +120,7 @@ class Funcoes:
 
     def liberado(self):
         print('captura hora: ok')
-        item_selection: object = self.tree.selection()[0]
+        item_selection = self.tree.selection()[0]
         self.tree.tag_configure('verde', background='#9bff9b')
         self.tree.item(item_selection, tags=('verde',))
         try:
@@ -439,7 +420,93 @@ class Principal(Funcoes):
         self.scroll.config(command=self.tree.yview)
         self.scroll.place(relx=0.979, rely=0.003, relwidth=0.02, relheight=0.995)
 
+        # Associe o evento <Double-Button-1> à função select_cell
+        self.tree.bind('<Double-Button-1>', self.on_double_click)
 
+    def on_double_click(self, event):
+        # indetify the region that was double_clicked
+        region_clicked = self.tree.identify_region(event.x, event.y)
+        # area interessada > cell
+        if region_clicked not in "cell":
+            return
+
+        # item desejado a ser clicado?
+        column = self.tree.identify_column(event.x)
+        selected_iid = self.tree.focus()
+        selected_values = self.tree.item(selected_iid)
+        column_index = int(column[1:]) - 1
+        selected_text = ''
+        try:
+            if column == "#1":
+                selected_text = selected_values.get("values")[0]  # pegar valor do indice 1
+            elif column == "#2":
+                selected_text = selected_values.get("values")[1]
+            elif column == "#3":
+                selected_text = selected_values.get("values")[2]
+            elif column == "#4":
+                selected_text = selected_values.get("values")[3]
+            elif column == "#5":
+                selected_text = selected_values.get("values")[4]
+            elif column == "#6":
+                selected_text = selected_values.get("values")[5]
+            elif column == "#7":
+                selected_text = selected_values.get("values")[6]
+            elif column == "#8":
+                selected_text = selected_values.get("values")[7]
+            elif column == "#9":
+                selected_text = selected_values.get("values")[8]
+            elif column == "#10":
+                selected_text = selected_values.get("values")[9]
+            else:
+                selected_text = selected_values.get('values')[column_index]
+        except IndexError:
+            messagebox.showerror("Erro", "Item vazio!\ndefina a hora de subida ou de liberação\nantes de clicar novamente")
+        except UnboundLocalError:
+            pass
+
+        column_box = self.tree.bbox(selected_iid, column)
+        print(column_box)
+        entry_edit = Entry(self.tree, width=column_box[2], font=('Roboto', 13))
+
+        # record the column index and item iid
+        entry_edit.editing_column_index = column_index
+        entry_edit.editing_item_iid = selected_iid
+
+        entry_edit.insert(0, selected_text)
+        entry_edit.select_range(0, END)
+
+        entry_edit.focus()
+
+        entry_edit.bind('<FocusOut>', self.on_focus_out)
+        entry_edit.bind('<Return>', self.on_focus_out)
+        entry_edit.bind('<Return>', self.on_enter_pressed)
+
+        entry_edit.place(x=column_box[0], y=column_box[1], w=column_box[2], h=column_box[3])
+
+    @staticmethod
+    def on_focus_out(event):
+        if event.widget:
+            event.widget.destroy()
+        else:
+            pass
+
+    def on_enter_pressed(self, event):
+        new_text = event.widget.get()
+        new_text = new_text.upper()
+        selected_iid = event.widget.editing_item_iid
+        column_index = event.widget.editing_column_index
+        try:
+            if column_index == -1:
+                self.item(selected_iid, text=new_text)
+            else:
+                current_values = self.tree.item(selected_iid).get('values')
+                current_values[column_index] = new_text
+                self.tree.item(selected_iid, values=current_values)
+
+            event.widget.destroy()
+            print("Item updated:", self.tree.item(selected_iid))
+        except IndexError:
+            messagebox.showerror("Erro", "Botão Direito do mouse sobre o item\n\nClique em Autorizado/Agendado\n\npara definir a hora de subida ou de liberação")
 
 
 Principal()
