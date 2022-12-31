@@ -12,6 +12,9 @@ root = tk.Tk()
 class Funcoes:
 
     def __init__(self):
+        self.btn_conf = None
+        self.root = root
+        self.e_conf = None
         self.ajudante_ico = None
         self.sair_ico = None
         self.opcoes_ico = None
@@ -36,7 +39,6 @@ class Funcoes:
         self.dados = None
         self.hora = None
         self.data_tempo = None
-        self.root = root
         self.tree = None
         self.root.bind("<Button-1>", lambda event: self.unselect(event))
         self.hora = StringVar()
@@ -123,7 +125,7 @@ class Funcoes:
         sair_resize = Image.open('ico/sair.png')
         sair_resize = sair_resize.resize((16, 16))
         sair_resize.save('ico/sair_ico_small.png')
-        
+
         ajudante_resize = Image.open('ico/ajudante.png')
         ajudante_resize = ajudante_resize.resize((16, 16))
         ajudante_resize.save('ico/ajudante_ico_small.png')
@@ -222,6 +224,8 @@ class Funcoes:
         except IndexError:
             messagebox.showerror("Erro", "Selecione um item para autorizar/agendar")
 
+        self.win_conferente()
+
     def aguardar(self):
         try:
             item_selection: object = self.tree.selection()[0]
@@ -267,6 +271,27 @@ class Funcoes:
         self.e_forn.delete(0, END)
         self.e_merc.delete(0, END)
         self.e_placa.focus()
+
+    def win_conferente(self):
+        win_conferente = Toplevel(self.root)
+        win_conferente.title("Conferente")
+        win_conferente.geometry("300x50")
+        win_conferente.resizable(False, False)
+        win_conferente.geometry("+{}+{}".format(self.root.winfo_screenwidth() // 2 - 150,
+                                                self.root.winfo_screenheight() // 2 - 100))  # Center window on screen
+
+        self.entry_conf(win_conferente)
+
+    def entry_conf(self, win_conferente):
+        self.e_conf = Entry(win_conferente, width=25, font=("Arial", 12))
+        self.e_conf.place(x=10, y=10, width=150, height=30)
+        self.e_conf.focus()
+
+        self.btn_conf = Button(win_conferente, text="OK", command=lambda: self.conf(win_conferente))
+        self.btn_conf.place(x=170, y=10, width=120, height=30)
+
+    def conf(self, win_conferente):
+        pass
 
     def mostrar_informacoes(self):
         # Get the selected item
