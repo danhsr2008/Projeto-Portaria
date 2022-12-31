@@ -12,6 +12,9 @@ root = tk.Tk()
 class Funcoes:
 
     def __init__(self):
+        self.ajudante_ico = None
+        self.sair_ico = None
+        self.opcoes_ico = None
         self.informacoes_ico = None
         self.deletar_ico = None
         self.cancelar_ico = None
@@ -98,7 +101,7 @@ class Funcoes:
         autorizado_resize.save('ico/autorizado_ico_small.png')
 
         liberado_resize = Image.open('ico/liberado.png')
-        liberado_resize = liberado_resize.resize((15, 15))
+        liberado_resize = liberado_resize.resize((16, 16))
         liberado_resize.save('ico/liberado_ico_small.png')
 
         cancelar_resize = Image.open('ico/cancelar.png')
@@ -106,12 +109,24 @@ class Funcoes:
         cancelar_resize.save('ico/cancelar_ico_small.png')
 
         deletar_resize = Image.open('ico/deletar.png')
-        deletar_resize = deletar_resize.resize((14, 14))
+        deletar_resize = deletar_resize.resize((15, 15))
         deletar_resize.save('ico/deletar_ico_small.png')
 
         informacoes_resize = Image.open('ico/informacoes.png')
-        informacoes_resize = informacoes_resize.resize((14, 14))
+        informacoes_resize = informacoes_resize.resize((16, 16))
         informacoes_resize.save('ico/informacoes_ico_small.png')
+
+        opcoes_resize = Image.open('ico/opcoes.png')
+        opcoes_resize = opcoes_resize.resize((14, 14))
+        opcoes_resize.save('ico/opcoes_ico_small.png')
+
+        sair_resize = Image.open('ico/sair.png')
+        sair_resize = sair_resize.resize((16, 16))
+        sair_resize.save('ico/sair_ico_small.png')
+        
+        ajudante_resize = Image.open('ico/ajudante.png')
+        ajudante_resize = ajudante_resize.resize((16, 16))
+        ajudante_resize.save('ico/ajudante_ico_small.png')
 
         # icones
         self.copy_icon = PhotoImage(file='ico/copy.png')
@@ -122,16 +137,23 @@ class Funcoes:
         self.cancelar_ico = PhotoImage(file='ico/cancelar_ico_small.png')
         self.deletar_ico = PhotoImage(file='ico/deletar_ico_small.png')
         self.informacoes_ico = PhotoImage(file='ico/informacoes_ico_small.png')
+        self.opcoes_ico = PhotoImage(file='ico/opcoes_ico_small.png')
+        self.sair_ico = PhotoImage(file='ico/sair_ico_small.png')
+        self.ajudante_ico = PhotoImage(file='ico/ajudante_ico_small.png')
 
-        self.pop_menu_mnu.add_command(label=' Copiar', command=self.copy_paste, image=self.copy_icon, compound='left')
-        self.pop_menu_mnu.add_command(label=' Editar', command=self.edit_mnu, image=self.edit_icon, compound='left')
-        self.pop_menu_mnu.add_command(label=' Aguardar', command=self.aguardar, image=self.aguardar_ico, compound='left')
-        self.pop_menu_mnu.add_command(label=" Autorizado/Agendado", command=self.autorizado, image=self.autorizado_ico, compound='left')
-        self.pop_menu_mnu.add_command(label=' Liberado', command=self.liberado, image=self.liberado_ico, compound='left')
-        self.pop_menu_mnu.add_command(label=' Cancelar/Reprovado', command=self.cancelado, image=self.cancelar_ico, compound='left')
-        self.pop_menu_mnu.add_command(label=' Deletar', command=self.delete_, image=self.deletar_ico, compound='left')
+        self.pop_menu_mnu.add_command(label=" Opções", image=self.opcoes_ico, compound='left')
         self.pop_menu_mnu.add_separator()
-        self.pop_menu_mnu.add_command(label=' Informações', command=self.mostrar_informacoes, image=self.informacoes_ico, compound='left')
+        self.pop_menu_mnu.add_command(label='  Copiar', command=self.copy_paste, image=self.copy_icon, compound='left')
+        self.pop_menu_mnu.add_command(label='  Editar', command=self.edit_mnu, image=self.edit_icon, compound='left')
+        self.pop_menu_mnu.add_command(label='  Aguardar', command=self.aguardar, image=self.aguardar_ico, compound='left')
+        self.pop_menu_mnu.add_command(label="  N/Agend-Autoriz.", command=self.autorizado, image=self.autorizado_ico, compound='left')
+        self.pop_menu_mnu.add_command(label='  Entrada/Subida', command=self.liberado, image=self.liberado_ico, compound='left')
+        self.pop_menu_mnu.add_command(label='  Saida', command=self.saida, image=self.sair_ico, compound='left')
+        self.pop_menu_mnu.add_command(label='  Cancelar/Reprovado', command=self.cancelado, image=self.cancelar_ico, compound='left')
+        self.pop_menu_mnu.add_command(label='  Deletar', command=self.delete_, image=self.deletar_ico, compound='left')
+        self.pop_menu_mnu.add_command(label='  Ad. Ajudantes', command=self.delete_, image=self.ajudante_ico, compound='left')
+        self.pop_menu_mnu.add_separator()
+        self.pop_menu_mnu.add_command(label='| Informações', command=self.mostrar_informacoes, image=self.informacoes_ico, compound='left')
 
     def popup_menu_method(self, event):
         try:
@@ -153,16 +175,40 @@ class Funcoes:
         except IndexError:
             messagebox.showerror("Erro", "Selecione um item para copiar")
 
-    @staticmethod
-    def edit_mnu():
-        messagebox.showinfo("Editar", "Você pode clicar duas vezes em um item para edita-lo")
+    def edit_mnu(self):
+        # recuperar o item selecionado no treeview
+        selecionados = self.tree.selection()
+        if not selecionados:
+            # nenhum item selecionado
+            return
+        indice = selecionados[0]  # pegar o primeiro item da tupla
+        item = self.tree.item(indice)  # recuperar as informações do item
+        # atualizar as entrys com os valores do item
+        self.e_placa.delete(0, "end")
+        self.e_placa.insert(0, item["values"][1])
+        self.e_nome.delete(0, "end")
+        self.e_nome.insert(0, item["values"][2])
+        self.e_rg.delete(0, "end")
+        self.e_rg.insert(0, item["values"][3])
+        self.e_forn.delete(0, "end")
+        self.e_forn.insert(0, item["values"][4])
+        self.e_merc.delete(0, "end")
+        self.e_merc.insert(0, item["values"][5])
+        self.e_nota.delete(0, "end")
+        self.e_nota.insert(0, item["values"][6])
+        item_selection = self.tree.selection()[0]
+        self.tree.delete(item_selection)
 
     def autorizado(self):
-        print('captura hora: ok')
         item_selection = self.tree.selection()[0]
         self.tree.tag_configure('azul', background='#9bb0ff')
         self.tree.item(item_selection, tags=('azul',))
+
+    def liberado(self):
         try:
+            item_selection = self.tree.selection()[0]
+            self.tree.tag_configure('verde', background='#9bff9b')
+            self.tree.item(item_selection, tags=('verde',))
             self.hora_subida = datetime.datetime.now().strftime("%H:%M")
             self.hora_subida = StringVar(value=self.hora_subida)
 
@@ -176,30 +222,11 @@ class Funcoes:
         except IndexError:
             messagebox.showerror("Erro", "Selecione um item para autorizar/agendar")
 
-    def liberado(self):
-        item_selection = self.tree.selection()[0]
-        self.tree.tag_configure('verde', background='#9bff9b')
-        self.tree.item(item_selection, tags=('verde',))
-        try:
-            self.hora_liberado = datetime.datetime.now().strftime("%H:%M")
-            self.hora_liberado = StringVar(value=self.hora_liberado)
-
-            # atualizar o item selecionado com a hora de decida
-            self.tree.item(self.tree.selection()[0],
-                           values=(
-                               self.tree.item(self.tree.selection()[0])['values'][0], self.tree.item(self.tree.selection()[0])['values'][1], self.tree.item(self.tree.selection()[0])['values'][2],
-                               self.tree.item(self.tree.selection()[0])['values'][3], self.tree.item(self.tree.selection()[0])['values'][4], self.tree.item(self.tree.selection()[0])['values'][5],
-                               self.tree.item(self.tree.selection()[0])['values'][6], self.tree.item(self.tree.selection()[0])['values'][7], self.tree.item(self.tree.selection()[0])['values'][8],
-                               self.hora_liberado.get()
-                           ))
-        except IndexError:
-            messagebox.showerror("Erro", "Autorizar primeiro")
-
     def aguardar(self):
-        item_selection: object = self.tree.selection()[0]
-        self.tree.tag_configure('laranja', background='#FF9D49')
-        self.tree.item(item_selection, tags=('laranja',))
         try:
+            item_selection: object = self.tree.selection()[0]
+            self.tree.tag_configure('laranja', background='#FF9D49')
+            self.tree.item(item_selection, tags=('laranja',))
             self.hora = datetime.datetime.now().strftime("%H:%M")
             self.hora = StringVar(value=self.hora)
 
@@ -212,6 +239,25 @@ class Funcoes:
                            ))
         except IndexError:
             pass
+
+    def saida(self):
+        try:
+            item_selection = self.tree.selection()[0]
+            self.tree.tag_configure('verde', background='#9bff9b')
+            self.tree.item(item_selection, tags=('verde',))
+            self.hora_liberado = datetime.datetime.now().strftime("%H:%M")
+            self.hora_liberado = StringVar(value=self.hora_liberado)
+
+            # atualizar o item selecionado com a hora de decida
+            self.tree.item(self.tree.selection()[0],
+                           values=(
+                               self.tree.item(self.tree.selection()[0])['values'][0], self.tree.item(self.tree.selection()[0])['values'][1], self.tree.item(self.tree.selection()[0])['values'][2],
+                               self.tree.item(self.tree.selection()[0])['values'][3], self.tree.item(self.tree.selection()[0])['values'][4], self.tree.item(self.tree.selection()[0])['values'][5],
+                               self.tree.item(self.tree.selection()[0])['values'][6], self.tree.item(self.tree.selection()[0])['values'][7], self.tree.item(self.tree.selection()[0])['values'][8],
+                               self.hora_liberado.get()
+                           ))
+        except IndexError:
+            messagebox.showerror("Erro", "Liberar primeiro")
 
     def limpar(self):  # testar if True
         self.e_placa.delete(0, END)
@@ -330,15 +376,15 @@ class Funcoes:
 
         # Adiciona uma quebra de linha a cada 35 caracteres
         formatted_text = ""
-        for i in range(0, len(text), 29):
-            formatted_text += text[i:i + 29] + "\n"
+        for i in range(0, len(text), 38):
+            formatted_text += text[i:i + 38] + "\n"
 
         # Atualiza a variável de texto com o texto formatado
         info_text = tk.StringVar()
         info_text.set(formatted_text)
 
         # Cria a label de texto com o texto da variável
-        label_txt = Label(self.info_window, textvariable=info_text, font=('Roboto', 11), bd=4, bg='#FFFFF0', width=44, height=6, anchor='center')
+        label_txt = Label(self.info_window, textvariable=info_text, font=('Roboto', 11), bd=4, bg='#FFFFF0', wraplength=400, width=44, height=6, anchor='center')
         label_txt.grid(column=0, row=12, padx=15)
 
         self.obs.destroy()
@@ -474,8 +520,8 @@ class Principal(Funcoes):
         self.tree.heading("#6", text="Mercadoria")
         self.tree.heading("#7", text="Nota")
         self.tree.heading("#8", text="Hr. Cheg.")
-        self.tree.heading("#9", text="Hr. Sub.")
-        self.tree.heading("#10", text="Hr. Lib.")
+        self.tree.heading("#9", text="Hr. Entr.")
+        self.tree.heading("#10", text="Hr. Said.")
         self.tree.heading("#11", text='')
 
         self.tree.column("#0", width=0, stretch=NO)
