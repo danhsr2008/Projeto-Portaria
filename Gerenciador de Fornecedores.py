@@ -12,9 +12,8 @@ root = tk.Tk()
 class Funcoes:
 
     def __init__(self):
-        self.btn_conf = None
         self.root = root
-        self.e_conf = None
+        self.tree = None
         self.ajudante_ico = None
         self.sair_ico = None
         self.opcoes_ico = None
@@ -39,7 +38,6 @@ class Funcoes:
         self.dados = None
         self.hora = None
         self.data_tempo = None
-        self.tree = None
         self.root.bind("<Button-1>", lambda event: self.unselect(event))
         self.hora = StringVar()
         self.hora_subida = StringVar()
@@ -63,9 +61,9 @@ class Funcoes:
             return False
 
         self.tree.insert(
-            "", 0, values=(self.data_tempo.get(), self.e_placa.get().upper(), self.e_nome.get().upper(), self.e_rg.get().upper(),
-                           self.e_forn.get().upper(), self.e_merc.get().upper(), self.e_nota.get().upper(), self.hora.get()))
-        ttk.Style().configure("Treeview", font=('Roboto', 11), rowheight=30, background='#d9dbdc', foreground='#000000')
+            "", 0, values=(self.data_tempo.get(), self.e_placa.get().upper(), self.e_nome.get().upper(), self.e_rg.get().upper(), self.e_forn.get().upper(),
+                           self.e_merc.get().upper(), self.e_nota.get().upper(), self.hora.get()))
+        ttk.Style().configure("Treeview", font=('Roboto', 11), rowheight=24, background='#d9dbdc', foreground='#000000')
         self.limpar()
 
     def delete_(self):
@@ -224,25 +222,12 @@ class Funcoes:
         except IndexError:
             messagebox.showerror("Erro", "Selecione um item para autorizar/agendar")
 
-        self.win_conferente()
-
     def aguardar(self):
-        try:
-            item_selection: object = self.tree.selection()[0]
-            self.tree.tag_configure('laranja', background='#FF9D49')
-            self.tree.item(item_selection, tags=('laranja',))
-            self.hora = datetime.datetime.now().strftime("%H:%M")
-            self.hora = StringVar(value=self.hora)
-
-            # atualizar o item selecionado com a hora de subida
-            self.tree.item(self.tree.selection()[0],
-                           values=(
-                               self.tree.item(self.tree.selection()[0])['values'][0], self.tree.item(self.tree.selection()[0])['values'][1], self.tree.item(self.tree.selection()[0])['values'][2],
-                               self.tree.item(self.tree.selection()[0])['values'][3], self.tree.item(self.tree.selection()[0])['values'][4], self.tree.item(self.tree.selection()[0])['values'][5],
-                               self.tree.item(self.tree.selection()[0])['values'][6], self.hora.get()
-                           ))
-        except IndexError:
-            pass
+        item_selection: object = self.tree.selection()[0]
+        self.tree.tag_configure('laranja', background='#FF9D49')
+        self.tree.item(item_selection, tags=('laranja',))
+        self.hora = datetime.datetime.now().strftime("%H:%M")
+        self.hora = StringVar(value=self.hora)
 
     def saida(self):
         try:
@@ -271,27 +256,6 @@ class Funcoes:
         self.e_forn.delete(0, END)
         self.e_merc.delete(0, END)
         self.e_placa.focus()
-
-    def win_conferente(self):
-        win_conferente = Toplevel(self.root)
-        win_conferente.title("Conferente")
-        win_conferente.geometry("300x50")
-        win_conferente.resizable(False, False)
-        win_conferente.geometry("+{}+{}".format(self.root.winfo_screenwidth() // 2 - 150,
-                                                self.root.winfo_screenheight() // 2 - 100))  # Center window on screen
-
-        self.entry_conf(win_conferente)
-
-    def entry_conf(self, win_conferente):
-        self.e_conf = Entry(win_conferente, width=25, font=("Arial", 12))
-        self.e_conf.place(x=10, y=10, width=150, height=30)
-        self.e_conf.focus()
-
-        self.btn_conf = Button(win_conferente, text="OK", command=lambda: self.conf(win_conferente))
-        self.btn_conf.place(x=170, y=10, width=120, height=30)
-
-    def conf(self, win_conferente):
-        pass
 
     def mostrar_informacoes(self):
         # Get the selected item
@@ -530,7 +494,8 @@ class Principal(Funcoes):
 
     def treeview(self):
         column_names = (
-            'Data', 'Placa', 'Nome', 'rg_cpf', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora_chegada', 'Hora_Subida', 'Hora_Liberado', '')
+            'Data', 'Placa', 'Nome', 'rg_cpf', 'Fornecedor', 'Mercadoria', 'Nota', 'Hora_chegada', 'Hora_Subida', 'Hora_Liberado', 'Conferente')
+        print(f"colunas:", len(column_names))
         self.tree = ttk.Treeview(self.root, columns=column_names, show='headings')
 
         '''style = ttk.Style()
@@ -547,7 +512,7 @@ class Principal(Funcoes):
         self.tree.heading("#8", text="Hr. Cheg.")
         self.tree.heading("#9", text="Hr. Entr.")
         self.tree.heading("#10", text="Hr. Said.")
-        self.tree.heading("#11", text='')
+        self.tree.heading("#11", text='Conferente')
 
         self.tree.column("#0", width=0, stretch=NO)
         self.tree.column("#1", width=40, anchor='center')  # data
@@ -560,9 +525,9 @@ class Principal(Funcoes):
         self.tree.column("#8", width=70, anchor='center')  # hora_chegada
         self.tree.column("#9", width=70, anchor='center')  # hora_subida
         self.tree.column("#10", width=70, anchor='center')  # hora liberado
-        self.tree.column("#11", width=0, anchor='center')  # vazio (espaço para scroll)
+        self.tree.column("#11", width=70, anchor='center')  # conferente
 
-        self.tree.place(relx=0.1, rely=0.3, relwidth=0.8, relheight=0.6)
+        self.tree.place(relx=0.05, rely=0.3, relwidth=0.9, relheight=0.65)
 
         self.scroll = Scrollbar(self.tree, orient=VERTICAL)
         self.tree.configure(yscrollcommand=self.scroll.set)
