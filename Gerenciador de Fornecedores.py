@@ -1,102 +1,108 @@
-import datetime
 import tkinter as tk
-from tkinter import ttk, messagebox, StringVar
-from tkinter.font import nametofont
-from PIL import Image
-import pyperclip as pc
+from tkinter import ttk
 
 
-class Funcoes:
+class MinimalistaApp:
     def __init__(self):
         self.root = tk.Tk()
-        self.tree = None
-        self.icons = {}
-        self.e_rg = None
-        self.e_nota = None
-        self.e_placa = None
-        self.e_mercadoria = None
-        self.e_fornecedor = None
-        self.e_nome = None
-        self.info_window = None
-        self.hora_label = None
-        self.pop_menu = None
-        self.dados = None
-        self.hora = StringVar()
-        self.hora_subida = StringVar()
-        self.hora_liberado = StringVar()
+        self.root.title("Controle de Acesso - Minimalista")
+        self.root.geometry("900x500")
+        self.root.configure(bg="#f5f5f5")  # Cor de fundo suave
 
-        self.setup_bindings()
+        self.setup_layout()
 
-    def setup_bindings(self):
-        self.root.bind("<Button-1>", self.unselect)
-
-    def capturar_dados(self):
-        dados = [
-            self.e_placa.get(),
-            self.e_nome.get(),
-            self.e_nota.get(),
-            self.e_fornecedor.get(),
-            self.e_mercadoria.get()
-        ]
-        if any(campo == '' for campo in dados):
-            messagebox.showinfo(
-                "Erro",
-                "Algum campo está vazio!\n\n"
-                "Preencha o campo com \"ESPAÇO\" se não houver valor."
-            )
-            self.limpar_campos()
-            return False
-
-        self.tree.insert(
-            "",
-            0,
-            values=(
-                self.data_tempo.get(),
-                self.e_placa.get().upper(),
-                self.e_nome.get().upper(),
-                self.e_rg.get().upper(),
-                self.e_fornecedor.get().upper(),
-                self.e_mercadoria.get().upper(),
-                self.e_nota.get().upper(),
-                self.hora.get()
-            )
+    def setup_layout(self):
+        # Título
+        title_label = tk.Label(
+            self.root,
+            text="Gerenciador de Fornecedores",
+            font=("Helvetica", 20, "bold"),
+            fg="#333",
+            bg="#f5f5f5"
         )
-        ttk.Style().configure(
-            "Treeview",
-            font=('Roboto', 11),
-            rowheight=24,
-            background='#d9dbdc',
-            foreground='#000000'
+        title_label.pack(pady=20)
+
+        # Frame principal
+        main_frame = tk.Frame(self.root, bg="#ffffff", bd=2, relief="groove")
+        main_frame.pack(fill="both", expand=True, padx=20, pady=10)
+
+        # Entradas e Rótulos
+        entry_frame = tk.Frame(main_frame, bg="#ffffff")
+        entry_frame.pack(pady=20)
+
+        labels = ["Placa", "Nome", "RG/CPF", "Nota", "Fornecedor", "Mercadoria"]
+        self.entries = []
+
+        for i, label_text in enumerate(labels):
+            label = tk.Label(
+                entry_frame,
+                text=label_text,
+                font=("Helvetica", 12),
+                bg="#ffffff",
+                fg="#555"
+            )
+            label.grid(row=i, column=0, sticky="w", padx=10, pady=5)
+
+            entry = tk.Entry(
+                entry_frame,
+                font=("Helvetica", 12),
+                bd=1,
+                relief="solid",
+                width=30
+            )
+            entry.grid(row=i, column=1, pady=5, padx=10)
+            self.entries.append(entry)
+
+        # Botão de registro
+        register_button = tk.Button(
+            main_frame,
+            text="Registrar",
+            font=("Helvetica", 12, "bold"),
+            bg="#4caf50",
+            fg="#fff",
+            bd=0,
+            relief="flat",
+            command=self.on_register_click
         )
-        self.limpar_campos()
+        register_button.pack(pady=10)
 
-    def limpar_campos(self):
-        self.e_placa.delete(0, tk.END)
-        self.e_nome.delete(0, tk.END)
-        self.e_rg.delete(0, tk.END)
-        self.e_nota.delete(0, tk.END)
-        self.e_fornecedor.delete(0, tk.END)
-        self.e_mercadoria.delete(0, tk.END)
-        self.e_placa.focus()
+        # Tabela
+        self.tree = ttk.Treeview(
+            main_frame,
+            columns=("Placa", "Nome", "RG/CPF", "Nota", "Fornecedor", "Mercadoria"),
+            show="headings",
+            height=8
+        )
+        self.tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-    def deletar_item(self):
-        try:
-            item_selecionado = self.tree.selection()[0]
-            self.tree.delete(item_selecionado)
-        except IndexError:
-            messagebox.showerror("Erro", "Selecione um item para deletar.")
+        # Estilo da tabela
+        style = ttk.Style()
+        style.configure("Treeview", font=("Helvetica", 11), rowheight=25)
+        style.configure("Treeview.Heading", font=("Helvetica", 12, "bold"))
 
-    def atualizar_hora(self):
-        self.hora.set(datetime.datetime.now().strftime("%H:%M"))
-        self.root.after(60000, self.atualizar_hora)  # Atualiza a cada 1 minuto
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=150, anchor="center")
 
-    def atualizar_data(self):
-        self.data_tempo.set(datetime.datetime.now().strftime("%d/%m"))
-        self.root.after(86400000, self.atualizar_data)  # Atualiza a cada 24 horas
+        # Barra de rolagem
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
 
-    def unselect(self, event):
-        try:
-            if self.tree.identify_row(event.y) == "":
-                self.tree.selection_remove(self.tree.selection()[0])
-        except IndexError:
-            pass
+    def on_register_click(self):
+        # Insere os valores das entradas na tabela
+        values = [entry.get() for entry in self.entries]
+        if all(values):
+            self.tree.insert("", "end", values=values)
+            for entry in self.entries:
+                entry.delete(0, tk.END)
+        else:
+            print("Preencha todos os campos!")  # Aqui você pode usar messagebox para um alerta.
+
+    def run(self):
+        self.root.mainloop()
+
+
+if __name__ == "__main__":
+    app = MinimalistaApp()
+    app.run()
